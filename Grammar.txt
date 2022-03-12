@@ -1,0 +1,464 @@
+﻿G = (VN, VT, S, P):
+VN = { <program>, <import_statement>,<template>,<actions>,<identifier> ,<char>, <nums_char>,<digit> , <starting_digit>, <template_body>, <params_declaration>, <main_template_body> , <variable_declaration>, <variable_type> , <num> , <text>,<count> ,<date> , <money>, <day> , <delimeter>,  <month>, <delimeter>, <year>,<flow_control>,  <text_action>, <until_statement>, <if_statement>,<expression>, <statements>,
+<method_fun>, <bin_op>, <method_op>,  <arithm_op>,  <relational_op>, 
+<equal_op>, <conditional_op>, <text_design> , <color_name>, <method_call>, <method_name>,  <font_type> ,<actions>, <list_of_actions> ,        <file_name>
+};
+
+
+VT = {use , 0,1….9,  a | b | ... | z | A | B | ... | Z |,create template, [ ,], ( , ) , . , : ,
+bool,words , chars  ,10  ,11 , 12,“, ”, - ,  / ,  . ,end , template , until,  if , else ,do,  not , length , begin , end , error ,input , + , - , * , / |,% , < , > ,  <= , >=, == , != ,and , or,  pdf ,\u , \i , \center , \b ,  \color , \line ,  \space , \t red , blue, black, green, magenta, yellow, brown, gray , center ,  fontsize , font ,  right , left , merge ,  split ,  replace, Times New Roman ,  Arial ,  Georgia ,actions , 
+,  Open , createTemplate, make, createPack,sentences}
+                        
+<word> - nonterminal
+Word - terminal
+[x] - x is optional , zero or one occurance of x ‘[‘ ‘]’ are terminals
+x+ -  one or more occurence of x
+x* - zero or more occurence of x 
+|  - an alternative separation
+‘{‘ ‘}’ -used for grouping
+
+
+<program> → <import_statement>+  <template>+ <actions> 
+
+
+<import_statement> → use <identifier>
+
+
+<identifier>→ <char> <nums_char>*
+
+
+<char>→ a | b | ... | z | A | B | ... | Z |
+
+
+<nums_char >→ <char> | <digit> | - | _
+
+
+<digit>→ 0 | <starting_digit>
+
+
+ <starting_digit> → 1 | 2 | ... | 9
+
+
+<template> → create template <identifier> : <template_body>
+
+
+<template_body> → [ <params_declaration> ] <main_template_body>
+
+
+<params_declaration>→   params ‘[‘ <variable_declaration>+ ‘]‘
+
+
+<variable_declaration>→  <identifier> : <variable_type> 
+                                |global <identifier> : <variable_type> = <identifier> 
+
+
+<variable_type>→ <num> | <text>[ ’[‘ <starting_digit> <digit>* <count> ‘]’ ] | <date> | <money> | bool
+
+
+<count>→words | chars | sentences
+
+
+ <num>→ <starting_digit> <digit>* | 0.<digit>+
+
+
+ <text>→ ” <char>* ”
+
+
+<date> → <day> <delimeter> <month><delimeter> <year>
+
+
+ <year>  → <digit><digit><digit><digit>
+
+
+ <month>  → 0<digit> | 10 |11 |12
+
+
+ <day> → <starting_digit><digit>
+
+
+ <delimeter> → - |  / |  .
+
+
+ <money>→  <num> $ | <num> <text>
+
+
+<main_template_body>→<flow_control>*   <text_action>+ end template
+
+
+<flow_control>→<until_statement>|<if_statement>
+
+
+<until_statement>→
+until <expression>{
+<statements>
+}
+|
+do{
+<statements>
+}until <expression>
+
+
+<if_statement>→ if <expression>  <statement>+
+                            | if  <expression>  <statement>+  else <statement>+
+
+
+
+
+<expression>→ <method_fun>
+                | <identifier>
+                | <expression><bin_op><expression>
+                | not <expression>
+                | (<expression>)
+
+
+<method_fun>→ <identifier>.<method_op> [ (<identifier>+|  <num> |<text>) ]
+
+
+<method_op>→length |begin |end | contains |
+
+
+<bin_op> → <arithm_op> | <relational_op> | <equal_op> | <conditional_op>
+
+
+<arithm_op> → + | - | * | / | % 
+<relational_op>→ < | > | <= | >=
+<equal_op> → == | !=
+<conditional_op>→and | or
+
+
+<statement> →<identifier> . <method_call>+
+                | <identifier>=<expression>
+                |error(<text>)
+                |input(<identifier>)
+        
+
+
+
+
+
+
+<text_action> →     <identifier>  = { <text> } |
+ <identifier>  = {    ‘{‘<text_design> <text>  \  ‘}’*  |   ‘{‘<text>  # <identifier>  ‘}’ *     }                                  | 
+pdf( <identifier>+ ) | 
+<identifier>  =   {   ‘{‘<text>  # <identifier>  ‘}’ *    } |
+<identifier> . <method_call>+
+
+
+<text_design> → \u | \i | \center | \b | \color=<color_name> | \line * <num> | \space * <num> | \t * <num>
+
+
+<color_name>→red|blue|black|green|magenta|yellow|brown|gray
+
+
+<method_call>→ <method_name> [ (<identifier>+|  <num> |<text>) ]
+
+
+<method_name> → center | fontsize | font(<font_type>) | right | left |merge | split | replace
+
+
+<font_type> → Times New Roman | Arial | Georgia 
+
+
+<actions>  → actions : <list_of_actions>+
+
+
+<list_of_actions> →  <identifier>  =  open(<file_name>) |
+                           <identifier>  = createTemplate(<identifier> ) |
+                           make  <identifier> [doc, docx, html ]  |  //console input
+                          <identifier>.(‘{‘      <text>,   ’ }’*)|     //params to template
+< identifier>.( <identifier>) |              //csv to a template
+< identifier>.< identifier> = <text>|        //global variables
+<identifier> = createPack(<identifier>+ )         
+<identifier> = <identifier>.<method_call>+
+
+
+<file_name> -><text> . {pdf | csv | docx}
+
+
+
+
+=====================================================
+Till here is the final version of grammar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<text> -> {<char>*’$’<var_name>’$’ <char>*}*
+<text> - > <format><char>* \
+
+
+—---------------FILE DECLARATION—-------
+<file_name> -> <char>* . {pdf | csv | docx}
+
+
+-----------------TEXT FORMAT—-------------
+<format> -> <align> | <font> | <style> | <format>
+<align> -> <right> | <left> | <centre>
+<font> -> <bold> | <italic> | <underline>
+<style> -> <Times New Roman> | <Arial> | <Georgia>  etc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<expression> = <expression>
+<expression> = <variable> | <template> | <function>
+<variable> = <int> | <text> | <float> | <char> | <date> | <money> | <boolean>
+<text> = set of strings
+<space> = $<variable><type>$
+
+
+
+
+—--------------------------------IF statements—----------------------------------
+If (condition){
+<condition> = true -> <statements>
+}
+<condition> = false -> else{ <statements>}
+
+
+
+
+If (condition){
+<condition> = true -> <statements>
+}
+
+
+
+
+If (condition){
+<condition> = true -> <statements>
+}
+<condition> = false ->
+
+
+ else if(condition){ 
+<condition> = true -> <statements>}
+
+
+<condition> = false -> 
+else (condition){ 
+<condition> = true -> <statements>}
+—--------------------------------IF statements—----------------------------------
+
+
+—--------------------------------LOOP statements—----------------------------------
+
+
+until(condition){
+<statements>
+}
+
+
+do{
+<statements>
+}until(condition)
+
+
+for(iterator, condition, incrementor/decrementor){
+<statements>
+}
+
+
+
+
+—--------------------------------LOOP statements—----------------------------------
+
+
+—--------------------------------FUNCTIONS—----------------------------------
+
+
+<type> function  name(variables){
+<statements>
+Return  <type><variable>
+}
+
+
+function  name(variables){
+<statements>
+}
+
+
+—--------------------------------FUNCTIONS—----------------------------------
+
+
+
+
+Template{
+Params{
+<name> = <expression>
+}
+<text><space<name>>
+<text><space<name>>
+<text><space<name>>
+<text>
+
+
+pdf()
+}
+
+
+
+
+TEXT FORMATTING
+\b \u \i  \c 
+\b - bold
+\u - underline
+\i - italic
+\c - color <assign> = RGB #FFFFF default color names
+\center
+\line - newline
+\space
+\tab
+
+
+The start of university begins \b in 2020 \ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<type> -> <int> | <text> | <float> | <char> | <date> | <money> | <boolean>
+<var_decl> -> <type> <id>+
+<method_decl> -> {<type>|void } <id> ({<type> <id>}+) <block>
+
+
+<block> -> <var_decl> <statement>
+
+
+<statement> -> <method_call>
+                | <var_decl><assign_op><expression>
+                | <conditional>
+                | <loop>
+                | break;
+                | continue;
+                | <block>
+
+
+<assign_op> -> =
+                | +=
+                | -=
+                | /=
+                | *=
+
+
+<conditional> -> if (<expression>)<block>
+                | if (<expression>)<block> else <block>
+                |  if (<expression>)<block> {elseif(<expression>)}+ | else <block>
+
+
+<method_call> -> <method_name> (<expression>)
+
+
+<method_name> -> <id>
+
+
+<expression>-><var_decl>
+                | <method_call>
+                | <literal>
+                | <expression><bin_op><expression>
+                | !<expression>
+                | (<expression>)
+<bin_op> -> <arithm_op> | <relational_op> | <equal_op> | <conditional_op>
+
+
+<arithm_op> -> + | - | * | / | % 
+<relational_op> -> < | > | <= | >=
+<equal_op> -> == | !=
+<conditional_op> -> && | ||
