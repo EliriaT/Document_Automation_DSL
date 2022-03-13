@@ -1,15 +1,19 @@
+from datetime import datetime
+
+delimeters = {".": ".", ",": ",", ":": ":", "/": "/", "|": "|", "_": "_", "-": "-"}
+
 ###Puntuation tokens
 singleTokens = {
     ".": "DOT", ",": "COMMA", ";": "SEMICOLON", ":": "COLON", "#": "HASHTAG",
     "{": "LBRACE", "}": "RBRACE", "(": "LPAREN", ")": "RPAREN", "[": "LBRACKET", "]": "RBRACKET",
-    "+": "PLUS", "-": "MINUS", "/": "SLASH", "%": "MOD", "*": "MULT",
+    "+": "PLUS", "-": "MINUS", "/": "SLASH", "\\": "BACK_SLASH", "%": "MOD", "*": "MULT",
     "\"": "DOUBLE_QUOTE", "\'": "SINGLE_QUOTE"
 }
 
 ###Operation tokens
 operationTokens = {
     "<": "SMALLER", ">": "BIGGER", "=": "EQUAL", "!": "NEGATION", "!=": "NEGATION_EQUAL",
-    "==": 'EQUAL_EQUAL', ">=": "BIGGER_EQUAL", "<=": "SMALLER_EQUAL",
+    "==": 'EQUAL_EQUAL', ">=": "BIGGER_EQUAL", "<=": "SMALLER_EQUAL"
 }
 
 ###Keyword tokens
@@ -22,7 +26,7 @@ keywordTokens = {
     "right": "RIGHT", "left": "LEFT", "merge": "MERGE", "split": "SPLIT", "replace": "REPLACE",
     "for": "FOR", "until": "UNTIL", "do": "DO", "if": "IF", "else": "ELSE",
     "and": "AND", "or": "OR", "true": "TRUE", "false": "FALSE", "not": "NOT",
-    "fontsize": "FONTSIZE", "font": "FONT", "begin": "BEGIN", "end": "END",
+    "fontsize": "FONTSIZE", "font": "FONT", "length": "LENGTH", "begin": "BEGIN", "end": "END",
     "doc": "DOC", "pdf": "PDF", "docx": "DOCX", "html": "HTML", "csv": "CSV"
 }
 
@@ -112,7 +116,52 @@ class Lexer:
 
             # set current to the new position
             self.current = position
+
+        # commented code
+        elif punctuation == "/" and self.text[self.current + 1] == "/":
+            self.increaseCurrent()
+            position = self.current
+            while position != self.length:
+                position += 1
+
+            # set current to the new position
+            self.current = position
+
+        # if we find a backslash we get the first word(textToken) after and until we find another backslash we store text in a text var
+        elif punctuation == "\\":
+            self.tokens.append(Token(punctuation, "BACK_SLASH"))
+            self.increaseCurrent()
+            position = self.current
+            # get the first word after backslash
+            while self.text[position].isalnum() or self.text[position] == "*":
+                position += 1
+            str = self.text[self.current:position]
+            # if it is a token then append otherwise an error
+            if str in textTokens:
+                token = Token(str, textTokens.get(str))
+                self.tokens.append(token)
+            else:
+                self.error = True
+                print("Wrong method call! Check line: ", self.line)
+            # set current to new position
+            self.current = position
+
+            # loop until we find the other backslash
+            while self.text[position] != "\\":
+                position += 1
+            # store the text in between the slashes
+            str = self.text[self.current:position]
+            token = Token(str, "TEXT")
+            self.tokens.append(token)
+
+            # store the last backslash
+            token = Token(self.text[position], "BACK_SLASH")
+            self.tokens.append(token)
+            # set current to the new position
+            self.current = position
+            self.increaseCurrent()
         else:
+            # simple other tokens
             token = Token(punctuation, singleTokens.get(punctuation))
             self.tokens.append(token)
             self.increaseCurrent()
@@ -157,6 +206,9 @@ class Lexer:
         if s in keywordTokens:
             token = Token(s, keywordTokens.get(s))
             self.tokens.append(token)
+        elif s in textTokens:
+            token = Token(s, textTokens.get(s))
+            self.tokens.append(token)
         # if the string is not a keyword it's an identifier
         else:
             token = Token(s, "IDENTIFIER")
@@ -168,17 +220,18 @@ class Lexer:
     # we loop until we have either digits or a '.' char and create a number based off that
     def setDigitTokens(self):
         position = self.current
-        # keeping track of dots to avoid syntax error like "1.2.3" is not a number
-        dot_counter = 0
+        dot_counter = 0  # keeping track of dots to avoid syntax error like "1.2.3" is not a number
         while position != self.length:
             current_char = self.text[position]
-            if not current_char.isdigit() and current_char != '.':
+            # check if current char isn't a digit or a dot then break
+            if not current_char.isdigit() and current_char not in delimeters:
                 # if current char is a letter then error like "1a.2" or "1a"
                 if current_char.isalpha():
                     self.error = True
                 break
 
-            if current_char == '.':
+            # increment dot counter
+            if current_char in delimeters:
                 dot_counter += 1
             position += 1
 
@@ -189,11 +242,19 @@ class Lexer:
         # otherwise it'll be a syntax error
         if not self.error:
             if dot_counter == 0:
-                token = Token(number, "INT_VAL")
+                token = Token(number, "INT")
                 self.tokens.append(token)
             elif dot_counter == 1:
-                token = Token(number, "DOUBLE_VAL")
-                self.tokens.append(token)
+                # check for money format
+                if self.is_money(number):
+                    token = Token(number, "MONEY")
+                    self.tokens.append(token)
+                else:
+                    token = Token(number, "DOUBLE")
+                    self.tokens.append(token)
+            elif dot_counter == 2:
+                # check for date format
+                self.is_date(number)
             else:
                 print("Syntax Error! Wrong number format! Check line: ", self.line)
         else:
@@ -201,6 +262,19 @@ class Lexer:
 
         # set current to the new position
         self.current = position
+
+    # check if number is a money format 125.50 2 decimal places
+    def is_money(self, number):
+        if "." in number:
+            pos = number.find('.')
+            if len(number[pos+1:]) != 2:
+                return False
+            else:
+                return True
+
+    def is_date(self, number):
+        #check the date format
+        print("Date is checked here")
 
     # print tokens array
     def print_tokens(self):

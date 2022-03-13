@@ -1,5 +1,5 @@
 create template ServiceAgreement:
-params [
+	params [
 	name: text [2 words]
 	address: text
 	city: text
@@ -11,3 +11,5 @@ params [
 	Phone: phonenum
 	mon:money
 ]
+
+if not:PostcalCode.begin("MD-") or length.PostcalCode<8 { error(Invalid PostalCode)}
