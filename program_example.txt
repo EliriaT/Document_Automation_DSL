@@ -1,0 +1,13 @@
+create template ServiceAgreement:
+params [
+	name: text [2 words]
+	address: text
+	city: text
+	province: enum{Chisinau,Balti, Orhei,Cimisilia}
+	PostalCode: text
+	Plantype: text
+	TermOfContract: date
+	DateSign: date
+	Phone: phonenum
+	mon:money
+]
