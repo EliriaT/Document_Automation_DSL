@@ -6,14 +6,13 @@ delimeters = {".": ".", ",": ",", ":": ":", "/": "/", "|": "|", "_": "_", "-": "
 singleTokens = {
     ".": "DOT", ",": "COMMA", ";": "SEMICOLON", ":": "COLON", "#": "HASHTAG",
     "{": "LBRACE", "}": "RBRACE", "(": "LPAREN", ")": "RPAREN", "[": "LBRACKET", "]": "RBRACKET",
-    "+": "PLUS", "-": "MINUS", "/": "SLASH", "\\": "BACK_SLASH", "%": "MOD", "*": "MULT",
-    "\"": "DOUBLE_QUOTE", "\'": "SINGLE_QUOTE"
+     "/": "SLASH", "\\": "BACK_SLASH", "\"": "DOUBLE_QUOTE", "\'": "SINGLE_QUOTE"
 }
 
 ###Operation tokens
 operationTokens = {
-    "<": "SMALLER", ">": "BIGGER", "=": "EQUAL", "!": "NEGATION", "!=": "NEGATION_EQUAL",
-    "==": 'EQUAL_EQUAL', ">=": "BIGGER_EQUAL", "<=": "SMALLER_EQUAL"
+    "<": "SMALLER", ">": "BIGGER", "=": "EQUAL", "!": "NEGATION", "!=": "NEGATION_EQUAL", "/": "SLASH", "%": "MOD",
+    "==": 'EQUAL_EQUAL', ">=": "BIGGER_EQUAL", "<=": "SMALLER_EQUAL", "*": "MULT", "+": "PLUS", "-": "MINUS",
 }
 
 ###Keyword tokens
