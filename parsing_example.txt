@@ -1,0 +1,11 @@
+params [
+	name: text
+	address: text
+	city: text
+	PostalCode: text
+	Plantype: text
+	TermOfContract: date
+	DateSign: date
+	Phone: phonenum
+	mon:money
+]

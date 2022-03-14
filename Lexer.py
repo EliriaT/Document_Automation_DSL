@@ -1,6 +1,6 @@
 from datetime import datetime
 
-delimeters = {".": ".", ",": ",", ":": ":", "/": "/", "|": "|", "_": "_", "-": "-"}
+delimeters = {".": ".", ",": ",", ":": ":", "/": "/", "|": "|", "_": "_", "-": "-", "eof": "EOF"}
 
 ###Puntuation tokens
 singleTokens = {
@@ -17,7 +17,7 @@ operationTokens = {
 
 ###Keyword tokens
 keywordTokens = {
-    "int": "INT_VAR", "double": "DOUBLE_VAR", "bool": "BOOLEAN_VAR", "chars": 'CHARS', "text": "TEXT_VAR",
+    "int": "INT", "double": "DOUBLE", "bool": "BOOLEAN_VAR", "chars": 'CHARS', "text": "TEXT_VAR",
     "words": "WORDS", "date": "DATE", "money": "MONEY", "phonenum": "PHONENUM",
     "template": "TEMPLATE", "actions": "ACTIONS", "open": "OPEN", "params": "PARAMS", "enum": "ENUM",
     "pack": "PACK", "sentences": "SENTENCES", "global": "GLOBAL", "create": "CREATE", "make": "MAKE",
@@ -27,6 +27,11 @@ keywordTokens = {
     "and": "AND", "or": "OR", "true": "TRUE", "false": "FALSE", "not": "NOT",
     "fontsize": "FONTSIZE", "font": "FONT", "length": "LENGTH", "begin": "BEGIN", "end": "END",
     "doc": "DOC", "pdf": "PDF", "docx": "DOCX", "html": "HTML", "csv": "CSV"
+}
+
+dataType = {
+    "int": "INT", "double": "DOUBLE", "bool": "BOOLEAN_VAR", "chars": 'CHARS', "text": "TEXT_VAR",
+    "words": "WORDS", "date": "DATE", "money": "MONEY", "phonenum": "PHONENUM",
 }
 
 ### tokens with slash \u , \i ,\center , \b , \color , \line , \space , \t
@@ -277,19 +282,14 @@ class Lexer:
 
     # print tokens array
     def print_tokens(self):
+        temp = 0;
         for token in self.tokens:
-            print(token.value, " ", token.type)
-
-
-################################################
-#############     MAIN     ####################
-################################################
-
-lex = Lexer("")
-with open(
-        "C:\\Users\\vraga\\OneDrive\\Desktop\\UNI\\PBL\\DSL\\Document-Automation-DSL\\program_example.txt") as openfileobject:
-    for line in openfileobject:
-        print(line)
-        lex.tokenizer(line)
-
-lex.print_tokens()
+            print("[",token.value, " ", token.type,"]", end=" ")
+            temp = temp + 1
+            if temp == 4:
+                print("")
+                temp = 0
+            
+    def get_tokens(self):
+        self.tokens.append(Token("eof", "EOF"))
+        return self.tokens
