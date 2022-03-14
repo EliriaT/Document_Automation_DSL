@@ -1,4 +1,8 @@
-from Lexer import *
+import sys
+sys.path.append('../')
+
+from PBL.Lexer.Lexer import *
+
 
 
 #############-----PARSER-----###################
@@ -47,7 +51,7 @@ class UnaryOpNode:
 #######################################
 
 errors = { "expectNumber": "Invalid Syntax Error: Expected int or float", "missArithmetic": "Expected '+', '-', '*' or '/'",
-"unclosedParen": "Expected ')'", "missId": "Expected Identifier", "missOpenParams": "Expected brackets after keyword param",
+"unclosedParen": "Expected ')'", "missId": "Expected Identifier", "missOpenParams": "Expected brackets after keyword params",
 "missCloseParams": "Unclosed bracket. Expected ']'", "missColon": "Expected ':' after Identifier", "missType": "Expected datatype in variable declaration",
 "noMoreVar":"Params closed succesfully"}
 
@@ -181,8 +185,11 @@ class Parser:
 #############     MAIN     #####################
 ################################################
 lex = Lexer("")
+
+filename='./Parser/parsing_example.txt'
+
 with open(
-        "D:\\temp\\PBL\\parsing_example.txt") as openfileobject:
+        filename) as openfileobject:
     for line in openfileobject:
         lex.tokenizer(line)
 lex.get_tokens()
