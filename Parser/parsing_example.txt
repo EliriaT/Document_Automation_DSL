@@ -1,11 +1,20 @@
-params [
-	name:
-	address: text
-	city: text
-	PostalCode: text
-	Plantype: text
-	TermOfContract: date
-	DateSign: date
-	Phone: phonenum
-	mon:money
+create template ServiceAgreement:
+	params [
+		mon: num
+		mon:text
+
 ]
+
+	mon=5*3+4;
+end template
+
+actions:
+	params[
+		a: num
+		a: date
+	]
+
+	a=5+7;
+	ServiceAgreement();
+
+

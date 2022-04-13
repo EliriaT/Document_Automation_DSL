@@ -1,0 +1,44 @@
+create template ServiceAgreement:
+	params [
+		global name: text [2 words]
+		address:  text      
+		city: text
+		province: enum{"Chisinau","Balti", "Orhei","Cimisilia"}
+		PostalCode: text
+		Plantype: text
+		TermOfContract: date
+		DateSign: date
+		Phone: phonenum
+		mon:money
+]
+
+	if not(PostcalCode.begin("MD-")) or PostcalCode.length<8 { error("Invalid PostalCode")} 
+
+	until not:PostcalCode.begin("MD-") or length.PostcalCode<8 {
+		input(PostalCode);
+}
+
+
+	title={ \NorthWind Wireless Ltd. ** Internet Service Agreement/Contract \ };
+	title={ \i NorthWind Wireless Ltd. ** Internet Service Agreement/Contract \ };
+	title.center.font(18);
+
+	mainText={
+
+#name \line
+#address \line
+#City \t*5   #Province \space*2 #PostalCode 
+
+\meaaaaaawww\
+
+# Phone 
+\line*4
+# Plantype  	\space*4       #TermOfContract	
+
+};
+pdf(title, mainText);
+end template
+
+actions:
+	variabl=2015.12.15
+    ServiceAgreement();

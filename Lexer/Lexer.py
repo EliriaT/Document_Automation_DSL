@@ -1,5 +1,11 @@
-from datetime import datetime
+import datetime
+import string
+import sys
+sys.path.append('../')
+from PBL.Token_Types_Enum import TokenType
 
+#Token value si type
+#Cu error
 delimeters = {".": ".", ",": ",", ":": ":", "/": "/", "|": "|", "_": "_", "-": "-", "eof": "EOF"}
 
 ###Puntuation tokens
@@ -26,17 +32,17 @@ keywordTokens = {
     "for": "FOR", "until": "UNTIL", "do": "DO", "if": "IF", "else": "ELSE",
     "and": "AND", "or": "OR", "true": "TRUE", "false": "FALSE", "not": "NOT",
     "fontsize": "FONTSIZE", "font": "FONT", "length": "LENGTH", "begin": "BEGIN", "end": "END",
-    "doc": "DOC", "pdf": "PDF", "docx": "DOCX", "html": "HTML", "csv": "CSV"
+    "doc": "DOC", "pdf": "PDF", "docx": "DOCX", "html": "HTML", "csv": "CSV", "num":"NUMBER"
 }
 
 dataType = {
     "int": "INT", "double": "DOUBLE", "bool": "BOOLEAN_VAR", "chars": 'CHARS', "text": "TEXT_VAR",
-    "words": "WORDS", "date": "DATE", "money": "MONEY", "phonenum": "PHONENUM",
+    "words": "WORDS", "date": "DATE", "money": "MONEY", "phonenum": "PHONENUM", "num":"NUMBER"
 }
 
 ### tokens with slash \u , \i ,\center , \b , \color , \line , \space , \t
 textTokens = {
-    "u": "UNDERLINE", "i": "PRINT", "center": "CENTER", "b": "BOLD", "color": "COLOR", "line": "LINE", "space": "SPACE",
+    "u": "UNDERLINE", "i": "ITALIC", "center": "CENTER", "b": "BOLD", "color": "COLOR", "line": "LINE", "space": "SPACE",
     "t": "TAB"
 }
 
@@ -51,10 +57,25 @@ colorTokens = {
 ### Token class
 ######################
 class Token:
-    def __init__(self, type, value):
+    def __init__(self, value, type,lineno=None, column=None):
         self.type = type
         self.value = value
+        self.lineno = lineno
+        self.column = column
+    def __str__(self):
+        #String representation of the class instance.
+        #Example:
+        #     Token(TokenType.INTEGER, 7, position=5:10)
+        
+        return 'Token({type}, {value}, position={lineno}:{column})'.format(
+            type=self.type,
+            value=repr(self.value),
+            lineno=self.lineno,
+            column=self.column,
+        )
 
+    def __repr__(self):
+        return self.__str__()
 
 ######################
 ### Lexer class
@@ -64,26 +85,29 @@ class Lexer:
         self.text = inp
         self.tokens = []
         self.current = 0
-        self.line = -1
+        self.line = 0
         self.length = 0
+        self.column = 0
         self.error = False
+        self.literals=string.printable.replace("\\","").replace("{","").replace("}","").replace("#","")
 
     # Reset values to initial values, will be called for each line
     def initializer(self, input_line):
         self.text = input_line
         self.current = 0
         self.line += 1
+        self.column = 0
         self.length = len(input_line)
         self.error = False
 
     # increases the current counter
     def increaseCurrent(self):
         self.current += 1
+        self.column += 1
 
     # Main function to tokenize a line input into tokens
     def tokenizer(self, input_line):
         self.initializer(input_line)
-
         # we have 4 main cases when current char is a: single character, operation, digit or alphabetic
         # we loop until end of line
         while self.current < self.length:
@@ -102,6 +126,7 @@ class Lexer:
             elif current_char.isdigit():
                 self.setDigitTokens()
 
+
     # for single characters we simply add them to tokens list
     def setSingleTokens(self, punctuation):
         # create a text token which is stored in quotes
@@ -111,11 +136,13 @@ class Lexer:
             while position != self.length:
                 if self.text[position] != "\"":
                     position += 1
+                    self.column+=1
                 else:
                     position += 1
+                    self.column+=1
                     break
             s = self.text[self.current:position - 1]
-            token = Token(s, "TEXT")
+            token = Token(s.upper(),  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
             self.tokens.append(token)
 
             # set current to the new position
@@ -127,46 +154,66 @@ class Lexer:
             position = self.current
             while position != self.length:
                 position += 1
+                self.column+=1
+
 
             # set current to the new position
             self.current = position
+
 
         # if we find a backslash we get the first word(textToken) after and until we find another backslash we store text in a text var
         elif punctuation == "\\":
-            self.tokens.append(Token(punctuation, "BACK_SLASH"))
+            self.tokens.append(Token(punctuation.upper(), TokenType(punctuation.upper()),lineno=self.line, column=self.column))
             self.increaseCurrent()
             position = self.current
             # get the first word after backslash
-            while self.text[position].isalnum() or self.text[position] == "*":
+            while self.text[position].isalnum() and self.text[position] != "*" : #Does not tokenize when line*4 / space *7
                 position += 1
+                self.column+=1
             str = self.text[self.current:position]
+            str.replace(" ","")
             # if it is a token then append otherwise an error
             if str in textTokens:
-                token = Token(str, textTokens.get(str))
+                token = Token(str.upper(), TokenType(str.upper()),lineno=self.line, column=self.column)
                 self.tokens.append(token)
+                if self.text[position]=="*":
+                    token = Token(self.text[position].upper(), TokenType(self.text[position]),lineno=self.line, column=self.column)
+                    self.tokens.append(token)
+                    position+=1
+                    self.column+=1
+                    if self.text[position].isdigit():
+                        self.current=position
+                        self.setDigitTokens()
+                        position=self.current
             else:
-                self.error = True
-                print("Wrong method call! Check line: ", self.line)
+                token = Token(str.upper(),  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
+                self.tokens.append(token)
+    
             # set current to new position
             self.current = position
 
-            # loop until we find the other backslash
-            while self.text[position] != "\\":
+            # loop until we find the other backslash or }
+            while self.text[position] in self.literals :
                 position += 1
+                self.column+=1
+                if position==self.length:
+                    break
             # store the text in between the slashes
             str = self.text[self.current:position]
-            token = Token(str, "TEXT")
+            token = Token(str.upper(), TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
             self.tokens.append(token)
 
-            # store the last backslash
-            token = Token(self.text[position], "BACK_SLASH")
-            self.tokens.append(token)
+            if  position!=self.length:
+                token = Token(self.text[position].upper(),  TokenType(self.text[position].upper()),lineno=self.line, column=self.column)
+                self.tokens.append(token)
+
             # set current to the new position
             self.current = position
             self.increaseCurrent()
+        
         else:
             # simple other tokens
-            token = Token(punctuation, singleTokens.get(punctuation))
+            token = Token(punctuation.upper(),  TokenType(punctuation.upper()),lineno=self.line, column=self.column+1)
             self.tokens.append(token)
             self.increaseCurrent()
 
@@ -180,16 +227,19 @@ class Lexer:
                 print("Too many operators error!")
             if self.text[position] in operationTokens:
                 position += 1
+                self.column+=1
             else:
                 break
         operation = self.text[self.current:position]
 
         if not self.error:
             if operation in operationTokens:
-                token = Token(operation, operationTokens.get(operation))
+                token = Token(operation.upper(),  TokenType(operation.upper()),lineno=self.line, column=self.column)
                 self.tokens.append(token)
             else:
-                print("Operation Error! Check line here: ", self.line)
+                self.error = True
+                print(operation)
+                print("1Operation Error! Check line here: ", self.line)
         else:
             print("Operation Error! Check line: ", self.line)
 
@@ -202,67 +252,73 @@ class Lexer:
         while position != self.length:
             if self.text[position].isalnum():
                 position += 1
+                self.column+=1
             else:
                 break
         # create keyword string by cutting text from current to position
         s = self.text[self.current:position]
         # if the string is a keyword
         if s in keywordTokens:
-            token = Token(s, keywordTokens.get(s))
+            token = Token(s.upper(),  TokenType(s.upper()),lineno=self.line, column=self.column)
             self.tokens.append(token)
-        elif s in textTokens:
-            token = Token(s, textTokens.get(s))
+        elif s in textTokens:          
+            token = Token(s.upper(),  TokenType(s.upper()),lineno=self.line, column=self.column)
             self.tokens.append(token)
         # if the string is not a keyword it's an identifier
         else:
-            token = Token(s, "IDENTIFIER")
+            token = Token(s,  TokenType("IDENTIFIER"),lineno=self.line, column=self.column)
             self.tokens.append(token)
 
         # set current to the new position
         self.current = position
 
+
     # we loop until we have either digits or a '.' char and create a number based off that
     def setDigitTokens(self):
         position = self.current
         dot_counter = 0  # keeping track of dots to avoid syntax error like "1.2.3" is not a number
-        while position != self.length:
+        
+        while position != self.length and (self.text[position].isdigit() or self.text[position]=='.'):
             current_char = self.text[position]
             # check if current char isn't a digit or a dot then break
-            if not current_char.isdigit() and current_char not in delimeters:
-                # if current char is a letter then error like "1a.2" or "1a"
-                if current_char.isalpha():
-                    self.error = True
+
+            if current_char.isalpha():
+                self.error = True
                 break
 
             # increment dot counter
-            if current_char in delimeters:
+            if current_char == '.':
                 dot_counter += 1
             position += 1
+            self.column+=1
 
         number = self.text[self.current:position]
 
         # if we have no dots in the number string then it's an integer
-        # if we have 1 dot it'll be a double
+        # if we have 1 dot it'll be a double, if 2 then date
         # otherwise it'll be a syntax error
         if not self.error:
             if dot_counter == 0:
-                token = Token(number, "INT")
+                token = Token(int(number),  TokenType("NUM"),lineno=self.line, column=self.column)
                 self.tokens.append(token)
             elif dot_counter == 1:
                 # check for money format
-                if self.is_money(number):
-                    token = Token(number, "MONEY")
-                    self.tokens.append(token)
-                else:
-                    token = Token(number, "DOUBLE")
-                    self.tokens.append(token)
+                # if self.is_money(number):
+                #     token = Token(number, "MONEY")
+                #     self.tokens.append(token)
+                # else:
+                token = Token(float(number), TokenType("NUM"),lineno=self.line, column=self.column)
+                self.tokens.append(token)
             elif dot_counter == 2:
                 # check for date format
-                self.is_date(number)
+                number=number.replace('.','-')
+                date=datetime.date.fromisoformat(number)
+                token = Token(date, TokenType("DATE"),lineno=self.line, column=self.column)
+                self.tokens.append(token)
             else:
-                print("Syntax Error! Wrong number format! Check line: ", self.line)
+                print("Syntax Error! Wrong format! Check line: ", self.line)
         else:
-            print("Syntax Error! Wrong number format! Check line: ", self.line)
+            print("Syntax Error! Wrong format! Check line: ", self.line)
 
         # set current to the new position
         self.current = position
@@ -282,14 +338,20 @@ class Lexer:
 
     # print tokens array
     def print_tokens(self):
-        temp = 0;
         for token in self.tokens:
-            print("[",token.value, " ", token.type,"]", end=" ")
-            temp = temp + 1
-            if temp == 4:
-                print("")
-                temp = 0
+            print(token)
             
     def get_tokens(self):
-        self.tokens.append(Token("eof", "EOF"))
+        self.tokens.append(Token("eof".upper(), TokenType("EOF")))
         return self.tokens
+
+# lex = Lexer("")
+
+# filename='./Lexer/test.txt'
+
+# with open(filename) as openfileobject:
+#     for line in openfileobject:
+#         lex.tokenizer(line)
+#         # print("linie "+line)
+# lex.get_tokens()
+# lex.print_tokens()
