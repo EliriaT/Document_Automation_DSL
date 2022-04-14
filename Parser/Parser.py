@@ -2,7 +2,6 @@ import sys
 
 sys.path.append('../')
 
-from PBL.Lexer.Lexer import Lexer
 from PBL.Token_Types_Enum import TokenType
 from PBL.Errors import ParserError,ErrorCode
 
@@ -116,7 +115,7 @@ class TemplateDecl(AST):
 class TemplateCall(AST):
     def __init__(self, templ_name, actual_params, token):
         self.templ_name = templ_name
-        self.actual_params = actual_params  # a list of AST nodes
+        self.actual_params = actual_params  # a list of AST nodes, used by the interpreter
         self.token = token
         # a reference to template declaration symbol
         self.templ_symbol = None

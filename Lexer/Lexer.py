@@ -142,7 +142,7 @@ class Lexer:
                     self.column+=1
                     break
             s = self.text[self.current:position - 1]
-            token = Token(s.upper(),  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
+            token = Token(s,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
             self.tokens.append(token)
 
             # set current to the new position
@@ -186,7 +186,7 @@ class Lexer:
                         self.setDigitTokens()
                         position=self.current
             else:
-                token = Token(str.upper(),  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
+                token = Token(str,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
                 self.tokens.append(token)
     
             # set current to new position
@@ -200,7 +200,7 @@ class Lexer:
                     break
             # store the text in between the slashes
             str = self.text[self.current:position]
-            token = Token(str.upper(), TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
+            token = Token(str, TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
             self.tokens.append(token)
 
             if  position!=self.length:
@@ -237,9 +237,15 @@ class Lexer:
                 token = Token(operation.upper(),  TokenType(operation.upper()),lineno=self.line, column=self.column)
                 self.tokens.append(token)
             else:
-                self.error = True
-                print(operation)
-                print("1Operation Error! Check line here: ", self.line)
+                if(operation=='=-' or operation=='=+'):
+                    token = Token(operation[0],  TokenType(operation[0]),lineno=self.line, column=self.column)
+                    self.tokens.append(token)
+                    token = Token(operation[1],  TokenType(operation[1]),lineno=self.line, column=self.column)
+                    self.tokens.append(token)
+                else:
+                    self.error = True
+                    print(operation)
+                    print("1Operation Error! Check line here: ", self.line)
         else:
             print("Operation Error! Check line: ", self.line)
 
@@ -258,10 +264,10 @@ class Lexer:
         # create keyword string by cutting text from current to position
         s = self.text[self.current:position]
         # if the string is a keyword
-        if s in keywordTokens:
+        if s.lower() in keywordTokens:
             token = Token(s.upper(),  TokenType(s.upper()),lineno=self.line, column=self.column)
             self.tokens.append(token)
-        elif s in textTokens:          
+        elif s.lower() in textTokens:          
             token = Token(s.upper(),  TokenType(s.upper()),lineno=self.line, column=self.column)
             self.tokens.append(token)
         # if the string is not a keyword it's an identifier

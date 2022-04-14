@@ -1,20 +1,18 @@
 create template ServiceAgreement:
 	params [
 		mon: num
-		mon:text
+		dude: text
 
 ]
-
-	mon=5*3+4;
+	
+	mon = -5 +mon;
 end template
 
 actions:
 	params[
 		a: num
-		a: date
 	]
 
 	a=5+7;
-	ServiceAgreement();
-
+	ServiceAgreement(5);
 
