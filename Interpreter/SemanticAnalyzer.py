@@ -4,7 +4,7 @@ sys.path.append('../')
 
 from PBL.Errors import SemanticError,ErrorCode
 from PBL.Lexer.Lexer import Lexer
-from PBL.Parser.Parser_Irina import Parser
+from PBL.Parser.Parser import Parser
 
 ###############################################################################
 #                                                                             #
