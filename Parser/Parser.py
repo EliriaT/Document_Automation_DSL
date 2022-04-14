@@ -345,36 +345,6 @@ class Parser:
             node = self.empty()
         return node
 
-    def if_statement(self):
-        """ if boolean_literal then function_statements [else function_statements]"""
-        self.eat(TokenType.IF)
-
-        boolean_expression = self.boolean_expressions()
-
-        statements = self.function_statements()
-
-
-        if self.current_token.type == TokenType.ELSE:
-            self.eat(TokenType.ELSE)
-            else_statements = self.function_statements()
-            return IfElseNode(boolean_expression, statements, else_statements)
-        else:
-            return IfNode(boolean_expression, statements)
-
-    def until_statement(self):
-        if self.current_token.type == TokenType.UNTIL:
-            self.eat(TokenType.UNTIL)
-            boolean_expression = self.boolean_expressions()
-
-            statements = self.function_statements()
-            return UntilNode(boolean_expression, statements)
-        else:
-            self.eat(TokenType.DO)
-            statements = self.function_statements()
-            self.eat(TokenType.UNTIL)
-            boolean_expression = self.boolean_expressions()
-            return DoUntilNode(statements, boolean_expression)
-
     def template_call_statement(self):
         token = self.current_token
 
