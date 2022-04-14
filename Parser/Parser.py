@@ -120,6 +120,33 @@ class TemplateCall(AST):
         # a reference to template declaration symbol
         self.templ_symbol = None
 
+class IfNode(AST):
+    def __init__(self, boolean_expression, statements):
+        self.expression = boolean_expression
+        self.statements = statements
+
+class IfElseNode(AST):
+    def __init__(self, boolean_expression, statements, else_statements):
+        self.expression = boolean_expression
+        self.statements = statements
+        self.else_statements = else_statements
+
+class UntilNode(AST):
+    def __init__(self, boolean_expression, statements):
+        self.expression = boolean_expression
+        self.statements = statements
+
+class DoUntilNode(AST):
+    def __init__(self, statements, boolean_expression):
+        self.statements = statements
+        self.expression = boolean_expression
+
+class ExprNode(AST):
+    def __init__(self, left, expression, right):
+        self.left = left
+        self.expression = expression
+        self.right = right
+
 ################################################
 #########    Construct the AST     #############
 ################################################
@@ -298,6 +325,9 @@ class Parser:
         statement : compound_statement #We do not need this, it is for another block of code
                   | template_call
                   | assignment_statement
+                  |if else
+                  |until
+                  |do until
                   | empty
         """
    
@@ -306,9 +336,43 @@ class Parser:
             node = self.template_call_statement()
         elif self.current_token.type == TokenType.IDENTIFIER:
             node = self.assignment_statement()
+        elif self.current_token.type == TokenType.IF:
+            node = self.if_statement()
+        elif (self.current_token.type == TokenType.UNTIL) or (self.current_token.type == TokenType.DO):
+            node = self.until_statement()
         else:
             node = self.empty()
         return node
+
+    def if_statement(self):
+        """ if boolean_literal then function_statements [else function_statements]"""
+        self.eat(TokenType.IF)
+
+        boolean_expression = self.boolean_expressions()
+
+        statements = self.function_statements()
+
+
+        if self.current_token.type == TokenType.ELSE:
+            self.eat(TokenType.ELSE)
+            else_statements = self.function_statements()
+            return IfElseNode(boolean_expression, statements, else_statements)
+        else:
+            return IfNode(boolean_expression, statements)
+
+    def until_statement(self):
+        if self.current_token.type == TokenType.UNTIL:
+            self.eat(TokenType.UNTIL)
+            boolean_expression = self.boolean_expressions()
+
+            statements = self.function_statements()
+            return UntilNode(boolean_expression, statements)
+        else:
+            self.eat(TokenType.DO)
+            statements = self.function_statements()
+            self.eat(TokenType.UNTIL)
+            boolean_expression = self.boolean_expressions()
+            return DoUntilNode(statements, boolean_expression)
 
     def template_call_statement(self):
         token = self.current_token

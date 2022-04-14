@@ -3,8 +3,7 @@ import sys
 sys.path.append('../')
 
 from PBL.Errors import SemanticError,ErrorCode
-from PBL.Lexer.Lexer import Lexer
-from PBL.Parser.Parser_Irina import Parser
+
 
 ###############################################################################
 #                                                                             #
@@ -159,11 +158,6 @@ class SemanticAnalyzer(NodeVisitor):
             message=f'{error_code.value} -> {token}',
         )
 
-    def visit_Block(self, node):
-        for declaration in node.declarations:
-            self.visit(declaration)
-        self.visit(node.compound_statement)
-
     def visit_Program(self, node):
         
         self.log('ENTER scope: global')
@@ -185,7 +179,10 @@ class SemanticAnalyzer(NodeVisitor):
         self.current_scope = self.current_scope.enclosing_scope
         self.log('LEAVE scope: global')
 
-
+    def visit_Block(self, node):
+        for declaration in node.declarations:
+            self.visit(declaration)
+        self.visit(node.compound_statement)
 
     def visit_Compound(self, node):
         for child in node.children:
@@ -290,23 +287,4 @@ class SemanticAnalyzer(NodeVisitor):
         node.templ_symbol = template_symbol
 
     
-
-
-lex = Lexer("")
-
-filename='./Parser/parsing_example.txt'
-
-with open(filename) as openfileobject:
-    for line in openfileobject:
-        lex.tokenizer(line)
-        # print("linie "+line)
-tokens=lex.get_tokens()
-lex.print_tokens()
-print("\n\n")
-parser = Parser(tokens)
-AST=parser.parse()
-
 _SHOULD_LOG_SCOPE = True
-
-semantic_analyzer = SemanticAnalyzer()
-semantic_analyzer.visit(AST)

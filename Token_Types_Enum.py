@@ -37,6 +37,7 @@ class TokenType(Enum):
     INT 	=	"INT"       # marks the beginning of the block
     DOUBLE 	=	"DOUBLE"
     NUM     =   "NUM"
+    NUM_LITERAL = "NUM_LITERAL"
     INTEGER_DIV   = 'DIV'
     BOOLEAN_VAR 	=	"BOOL"
     CHARS 	=	"CHARS"
