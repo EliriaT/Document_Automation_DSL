@@ -4,7 +4,6 @@ sys.path.append('../')
 
 from PBL.Errors import SemanticError,ErrorCode
 
-
 ###############################################################################
 #                                                                             #
 #                               AST visitors                                  #

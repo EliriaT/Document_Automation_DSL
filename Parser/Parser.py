@@ -2,6 +2,7 @@ import sys
 
 sys.path.append('../')
 
+from PBL.Lexer.Lexer import *
 from PBL.Token_Types_Enum import TokenType
 from PBL.Errors import ParserError,ErrorCode
 
@@ -399,7 +400,95 @@ class Parser:
         )
         return node
 
+    def if_statement(self):
+        self.eat(TokenType.IF)
 
+        boolean_expression = self.boolean_expressions()
+
+        statements = self.function_statements()
+
+        
+        if self.current_token.type == TokenType.ELSE:
+            self.eat(TokenType.ELSE)
+            else_statements = self.function_statements()
+            return IfElseNode(boolean_expression, statements, else_statements)
+        else:
+            return IfNode(boolean_expression, statements)
+
+    def until_statement(self):
+        if self.current_token.type == TokenType.UNTIL:
+            self.eat(TokenType.UNTIL)
+            boolean_expression = self.boolean_expressions()
+
+            statements = self.function_statements()
+            return UntilNode(boolean_expression, statements)
+        else:
+            self.eat(TokenType.DO)
+            statements = self.function_statements()
+            self.eat(TokenType.UNTIL)
+            boolean_expression = self.boolean_expressions()
+            return DoUntilNode(statements, boolean_expression)
+
+    def boolean_expressions(self):
+        """
+        expression : not <expression>
+                        | (<expression)
+                        | <expression> <bin_op> <expression>
+                        | <identifier>
+        """
+        node = self.boolean_expression()
+        while (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR) or (self.current_token.type in operationTokens):
+            sign = self.current_token.type
+            self.eat(sign)
+            node = ExprNode(node, sign, self.boolean_expression())
+
+        return node
+        
+    def boolean_expression(self):
+        if self.current_token.type == TokenType.NOT:
+            self.eat(TokenType.NOT)
+            return ExprNode(TokenType.NOT, self.boolean_expression(), None)
+
+        elif self.current_token.type == TokenType.LPAREN:
+            self.eat(TokenType.LPAREN)
+            add = self.boolean_expression()
+            if self.current_token.type == TokenType.RPAREN:
+                self.eat(TokenType.RPAREN)
+                return ExprNode(TokenType.LPAREN, add, TokenType.RPAREN)
+            else:
+                temp = ExprNode(add, self.boolean_expression(), None)
+                add = ExprNode(TokenType.LPAREN, temp, TokenType.RPAREN)
+                self.eat(TokenType.RPAREN)
+                return add
+            
+        elif self.current_token.value in operationTokens or (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR):
+            binOp = self.current_token.type
+            self.eat(binOp)
+            return ExprNode(binOp, self.boolean_expression(), None)
+        else:
+            exprs = self.current_token.value
+            self.eat(self.current_token.type)
+
+            if self.current_token.value in operationTokens:
+                binOp = self.current_token.type
+                self.eat(binOp)
+                return ExprNode(exprs, binOp, self.boolean_expression())
+            else: 
+                return exprs
+
+    def function_statements(self):
+        if self.current_token.type == TokenType.LBRACE:
+            self.eat(TokenType.LBRACE)
+            statements = self.statement_list()
+            self.eat(TokenType.RBRACE)
+        else:
+            statements=self.statement()
+            if self.current_token.type != TokenType.SEMICOLON:
+                self.eat(TokenType.SEMICOLON)
+            if self.peek().type == TokenType.ELSE or self.peek().type == TokenType.UNTIL:
+                self.eat(TokenType.SEMICOLON)
+
+        return statements
 
     def assignment_statement(self):
         """
@@ -502,5 +591,3 @@ class Parser:
             )
 
         return node
-
-
