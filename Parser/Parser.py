@@ -145,7 +145,7 @@ class DoUntilNode(AST):
 class ExprNode(AST):
     def __init__(self, left, expression, right):
         self.left = left
-        self.expression = expression
+        self.expression = expression   #In the case of not it is an expression, otherwise and operation :and not >
         self.right = right
 
 ################################################
@@ -401,50 +401,58 @@ class Parser:
 
     def boolean_expressions(self):
         """
-        expression : not <expression>
-                        | (<expression)
-                        | <expression> <bin_op> <expression>
-                        | <identifier>
+        expression : boolean_expression ((AND|OR) boolean_expression)*
         """
         node = self.boolean_expression()
-        while (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR) or (self.current_token.type in operationTokens):
-            sign = self.current_token.type
-            self.eat(sign)
-            node = ExprNode(node, sign, self.boolean_expression())
+        while (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR):
+            sign = self.current_token
+            self.eat(sign.type)
+            second_expr=self.boolean_expression()
+            node = ExprNode(node, sign, second_expr)
 
         return node
         
     def boolean_expression(self):
         if self.current_token.type == TokenType.NOT:
             self.eat(TokenType.NOT)
-            return ExprNode(TokenType.NOT, self.boolean_expression(), None)
+            expression_one=self.boolean_expression()
+            return ExprNode(TokenType.NOT, expression_one, None)
 
-        elif self.current_token.type == TokenType.LPAREN:
-            self.eat(TokenType.LPAREN)
-            add = self.boolean_expression()
-            if self.current_token.type == TokenType.RPAREN:
-                self.eat(TokenType.RPAREN)
-                return ExprNode(TokenType.LPAREN, add, TokenType.RPAREN)
-            else:
-                temp = ExprNode(add, self.boolean_expression(), None)
-                add = ExprNode(TokenType.LPAREN, temp, TokenType.RPAREN)
-                self.eat(TokenType.RPAREN)
-                return add
-            
-        elif self.current_token.value in operationTokens or (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR):
-            binOp = self.current_token.type
-            self.eat(binOp)
-            return ExprNode(binOp, self.boolean_expression(), None)
-        else:
-            exprs = self.current_token.value
+        expression_one=self.expr()
+
+        while self.current_token.type in [TokenType.SMALLER,TokenType.BIGGER,TokenType.NEGATION_EQUAL,TokenType.EQUAL_EQUAL,TokenType.BIGGER_EQUAL,TokenType.SMALLER_EQUAL]:
+            op=(self.current_token)
             self.eat(self.current_token.type)
+            expression_Two=self.expr()
+            return ExprNode(expression_one, op, expression_Two)
 
-            if self.current_token.value in operationTokens:
-                binOp = self.current_token.type
-                self.eat(binOp)
-                return ExprNode(exprs, binOp, self.boolean_expression())
-            else: 
-                return exprs
+
+        # elif self.current_token.type == TokenType.LPAREN:
+        #     self.eat(TokenType.LPAREN)
+        #     add = self.boolean_expression()
+        #     if self.current_token.type == TokenType.RPAREN:
+        #         self.eat(TokenType.RPAREN)
+        #         return ExprNode(TokenType.LPAREN, add, TokenType.RPAREN)
+        #     else:
+        #         temp = ExprNode(add, self.boolean_expression(), None)
+        #         add = ExprNode(TokenType.LPAREN, temp, TokenType.RPAREN)
+        #         self.eat(TokenType.RPAREN)
+        #         return add
+            
+        # elif self.current_token.value in operationTokens or (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR):
+        #     binOp = self.current_token.type
+        #     self.eat(binOp)
+        #     return ExprNode(binOp, self.boolean_expression(), None)
+        # else:
+        #     exprs = self.current_token.value
+        #     self.eat(self.current_token.type)
+
+        #     if self.current_token.value in operationTokens:
+        #         binOp = self.current_token.type
+        #         self.eat(binOp)
+        #         return ExprNode(exprs, binOp, self.boolean_expression())
+        #     else: 
+        #         return exprs
 
     def function_statements(self):
         if self.current_token.type == TokenType.LBRACE:
@@ -526,7 +534,7 @@ class Parser:
                   | MINUS factor
                   | INTEGER_CONST
                   | REAL_CONST
-                  | LPAREN expr RPAREN
+                  | LPAREN boolean_expressions RPAREN
                   | variable
         """
         token = self.current_token
@@ -543,7 +551,7 @@ class Parser:
             return Num(token)
         elif token.type == TokenType.LPAREN:
             self.eat(TokenType.LPAREN)
-            node = self.expr()
+            node = self.boolean_expressions()
             self.eat(TokenType.RPAREN)
             return node
         else:

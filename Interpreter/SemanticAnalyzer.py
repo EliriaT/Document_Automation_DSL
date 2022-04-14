@@ -3,6 +3,7 @@ import sys
 sys.path.append('../')
 
 from PBL.Errors import SemanticError,ErrorCode
+from PBL.Token_Types_Enum import TokenType
 
 ###############################################################################
 #                                                                             #
@@ -285,5 +286,32 @@ class SemanticAnalyzer(NodeVisitor):
         # accessed by the interpreter when executing template call
         node.templ_symbol = template_symbol
 
+    def visit_IfNode(self,node):
+        self.visit(node.expression)
+        for child in node.statements:
+            self.visit(child)
+
+    def visit_IfElseNode(self,node):
+        self.visit(node.expression)
+        for child in node.statements:
+            self.visit(child)
+        for child in node.else_statements:
+            self.visit(child)
+
+    def visit_UntilNode(self,node):
+        self.visit(node.expression)
+        for child in node.statements:
+            self.visit(child)
+
+    def visit_DoUntilNode(self,node):
+        for child in node.statements:
+            self.visit(child)
+        self.visit(node.expression)
+
+    def visit_ExprNode(self,node):
+        if node.left.token.type!=TokenType.NOT: self.visit(node.left)
+        else: self.visit(node.expression)
+        if node.right.token.type!=None:
+            self.visit(node.right)
     
 _SHOULD_LOG_SCOPE = True

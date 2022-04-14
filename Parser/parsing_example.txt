@@ -1,11 +1,13 @@
 create template ServiceAgreement:
 	params [
 		mon: num
-		num2: num
+		
 
 ]
-	
-	mon = num;
+	do {
+	mon=mon+1}
+	until mon<10 ;
+
 end template
 
 actions:
@@ -14,9 +16,8 @@ actions:
 	]
 
 	a=5+7;
-<<<<<<< HEAD
-	ServiceAgreement(8,100);
+	if a!=100 {
+		ServiceAgreement(1);
 
-=======
-	ServiceAgreement(5);
->>>>>>> b8ee74a74386060f587f2baba464b4b8eb28e7bb
+	}
+

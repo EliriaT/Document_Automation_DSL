@@ -1,5 +1,6 @@
 import sys
 from enum import Enum
+from turtle import right
 sys.path.append('../')
 
 from PBL.Interpreter.SemanticAnalyzer import NodeVisitor,SemanticAnalyzer
@@ -204,6 +205,64 @@ class Interpreter(NodeVisitor):
 
         self.call_stack.pop()
 
+    def visit_IfNode(self,node):
+        bool_result=self.visit(node.expression)
+        if(bool_result):
+            for child in node.statements:
+                self.visit(child)
+
+    def visit_IfElseNode(self,node):
+        bool_result=self.visit(node.expression)
+        if(bool_result):
+            for child in node.statements:
+                self.visit(child)
+        else:
+            for child in node.else_statements:
+                self.visit(child)
+
+    def visit_UntilNode(self,node):
+        bool_result=self.visit(node.expression)
+        while(bool_result):
+            for child in node.statements:
+                self.visit(child)
+            bool_result=self.visit(node.expression)
+
+    def visit_DoUntilNode(self,node):
+        while(True):
+
+            for child in node.statements:
+                self.visit(child)
+            bool_result=self.visit(node.expression)
+            if not(bool_result): break
+
+    def visit_ExprNode(self,node):
+        left_side=None
+        right_side=None
+        if node.left.token.type!=TokenType.NOT:left_side= self.visit(node.left)
+        else: 
+            bool_result=self.visit(node.expression)
+            return not(bool_result)
+
+        right_side=self.visit(node.right)
+
+        operation_type=node.expression.type
+
+        if operation_type == TokenType.SMALLER:
+            return left_side < right_side
+        elif operation_type == TokenType.BIGGER:
+            return left_side > right_side
+        elif operation_type == TokenType.NEGATION_EQUAL:
+            return left_side != right_side
+        elif operation_type == TokenType.EQUAL_EQUAL:
+            return left_side == right_side
+        elif operation_type == TokenType.BIGGER_EQUAL:
+            return left_side >= right_side
+        elif operation_type == TokenType.SMALLER_EQUAL:
+            return left_side <= right_side
+
+
+        
+
     def interpret(self):
         tree = self.tree
         if tree is None:
@@ -231,6 +290,7 @@ _SHOULD_LOG_STACK = True
 
 semantic_analyzer = SemanticAnalyzer()
 semantic_analyzer.visit(AST)
+print("\n")
 
 interpreter = Interpreter(AST)
 interpreter.interpret()
