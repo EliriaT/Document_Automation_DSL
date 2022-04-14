@@ -305,7 +305,7 @@ class Lexer:
         # otherwise it'll be a syntax error
         if not self.error:
             if dot_counter == 0:
-                token = Token(int(number),  TokenType("NUM"),lineno=self.line, column=self.column)
+                token = Token(int(number),  TokenType("NUM_LITERAL"),lineno=self.line, column=self.column)
                 self.tokens.append(token)
             elif dot_counter == 1:
                 # check for money format
@@ -313,7 +313,7 @@ class Lexer:
                 #     token = Token(number, "MONEY")
                 #     self.tokens.append(token)
                 # else:
-                token = Token(float(number), TokenType("NUM"),lineno=self.line, column=self.column)
+                token = Token(float(number), TokenType("NUM_LITERAL"),lineno=self.line, column=self.column)
                 self.tokens.append(token)
             elif dot_counter == 2:
                 # check for date format

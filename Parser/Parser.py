@@ -237,7 +237,6 @@ class Parser:
             if self.current_token.type == TokenType.LBRACKET:
                 self.eat(TokenType.LBRACKET)
                 num=self.factor()
-                print(num.value,self.current_token.type)
                 type=None
                 if(self.current_token.type == TokenType.WORDS):
                     self.eat(TokenType.WORDS)
@@ -416,8 +415,8 @@ class Parser:
             self.eat(TokenType.MINUS)
             node = UnaryOp(token, self.factor())
             return node
-        elif token.type == TokenType.NUM:
-            self.eat(TokenType.NUM)
+        elif token.type == TokenType.NUM_LITERAL:
+            self.eat(TokenType.NUM_LITERAL)
             return Num(token)
         elif token.type == TokenType.LPAREN:
             self.eat(TokenType.LPAREN)
