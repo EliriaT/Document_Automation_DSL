@@ -29,6 +29,10 @@ class Num(AST):
         self.token = token
         self.value = token.value
 
+class Text_Literal(AST):
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
 
 class UnaryOp(AST):
     def __init__(self, op, expr):
@@ -147,6 +151,11 @@ class ExprNode(AST):
         self.left = left
         self.expression = expression   #In the case of not it is an expression, otherwise and operation :and not >
         self.right = right
+
+class FormattingTextLiteral(AST):
+    def __init__(self, formatting, text):
+        self.formatting = formatting
+        self.text = text
 
 ################################################
 #########    Construct the AST     #############
@@ -475,9 +484,58 @@ class Parser:
         left = self.variable()
         token = self.current_token
         self.eat(TokenType.EQUAL)
-        right = self.expr()
+        
+        if self.current_token.type == TokenType.TEXT_LITERALS:
+            right = []
+            right.append(FormattingTextLiteral(None, self.pop_text_literals()))
+
+        elif self.current_token.type == TokenType.LBRACE:
+            self.eat(TokenType.LBRACE)
+            right = self.string_parsing()
+            self.eat(TokenType.RBRACE)
+
+        else: 
+            right = self.expr()
+
         node = Assign(left, token, right)
         return node
+
+    def string_parsing(self):
+        textList = []
+
+        while self.current_token.type == TokenType.BACK_SLASH:
+            self.eat(TokenType.BACK_SLASH)
+
+            if self.current_token.type == TokenType.TEXT_LITERALS:
+                text = self.pop_text_literals()
+                right = FormattingTextLiteral(None, text)
+
+            elif self.current_token.value.lower() in textTokens:
+                formatting = self.current_token
+                self.current_token = self.get_next_token()
+
+                if formatting.type == TokenType.SPACE or formatting.type == TokenType.LINE or formatting.type == TokenType.TAB:
+                    self.eat(TokenType.BACK_SLASH)
+                
+                text = self.pop_text_literals()
+                right = FormattingTextLiteral(formatting, text)
+            else:
+                self.error( error_code=ErrorCode.UNEXPECTED_TOKEN,   token=self.current_token, expected_token="'textToken'")
+            
+            self.eat(TokenType.BACK_SLASH)
+            textList.append(right)
+        
+        return textList
+
+    def pop_text_literals(self):
+        right = self.current_token
+        self.eat(TokenType.TEXT_LITERALS)
+
+        while self.current_token.type == TokenType.TEXT_LITERALS:
+            right.value += self.current_token.value
+            self.eat(TokenType.TEXT_LITERALS)
+
+        return Text_Literal(right)
 
     def variable(self):
         """
@@ -502,7 +560,10 @@ class Parser:
             if token.type == TokenType.PLUS:
                 self.eat(TokenType.PLUS)
             elif token.type == TokenType.MINUS:
-                self.eat(TokenType.MINUS)
+                if node.type == TokenType.TEXT_LITERALS:
+                    self.eat(TokenType.PLUS)
+                else:
+                    self.eat(TokenType.MINUS)
 
             node = BinOp(left=node, op=token, right=self.term())
 
@@ -511,6 +572,9 @@ class Parser:
     def term(self):
         """term : factor ((MULT | INTEGER_DIV | FLOAT_DIV) factor)*"""
         node = self.factor()
+
+        if node.token.type == TokenType.TEXT_LITERALS:
+            return node
 
         while self.current_token.type in (
                 TokenType.MULT,
@@ -554,6 +618,9 @@ class Parser:
             node = self.boolean_expressions()
             self.eat(TokenType.RPAREN)
             return node
+        elif token.type == TokenType.TEXT_LITERALS:
+            self.eat(TokenType.TEXT_LITERALS)
+            return Text_Literal(token)
         else:
             node = self.variable()
             return node
