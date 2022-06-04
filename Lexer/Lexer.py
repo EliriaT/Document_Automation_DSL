@@ -160,56 +160,58 @@ class Lexer:
             # set current to the new position
             self.current = position
 
+        #text literal
+        elif punctuation == '{' and self.tokens[-1].value == "=":
+            token = Token(punctuation,  TokenType(punctuation),lineno=self.line, column=self.column+1)
+            self.tokens.append(token)
+            self.increaseCurrent()
+
+            while self.text[self.current] != "}" and self.length != self.current :
+                text = ''
+                if self.text[self.current] == "\\":
+                    token = Token(self.text[self.current],  TokenType(self.text[self.current]),lineno=self.line, column=self.column+1)
+                    self.tokens.append(token)
+                    self.increaseCurrent()
+
+                    while self.length != self.current  and self.text[self.current] != "}"  and self.text[self.current] != "\\":
+                        text+=self.text[self.current]
+                        self.increaseCurrent()
+                    
+                    poz=0
+                    keyword=''
+                    while text[poz]!= ' ' and poz!=len(text):
+                        keyword+=text[poz]
+                        poz+=1
+
+                    if keyword.lower() in textTokens:          
+                        token = Token(keyword.upper(),  TokenType(keyword.upper()),lineno=self.line, column=self.column)
+                        self.tokens.append(token)
+                        text=text[poz:len(text)]
+
+                    token = Token(text,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
+                    self.tokens.append(token)
+
+                else:
+
+                    while self.length != self.current  and self.text[self.current] != "}"  and self.text[self.current] != "\\":
+                        text+=self.text[self.current]
+                        self.increaseCurrent()
+                    
+                    token = Token(text,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
+                    self.tokens.append(token)
+
+            if self.text[self.current] == "}":
+                token = Token(self.text[self.current],  TokenType(self.text[self.current]),lineno=self.line, column=self.column+1)
+                self.tokens.append(token)
+                self.increaseCurrent()
+            
+
 
         # if we find a backslash we get the first word(textToken) after and until we find another backslash we store text in a text var
         elif punctuation == "\\":
-            self.tokens.append(Token(punctuation.upper(), TokenType(punctuation.upper()),lineno=self.line, column=self.column))
-            self.increaseCurrent()
-            position = self.current
-            # get the first word after backslash
-            while self.text[position].isalnum() and self.text[position] != "*" : #Does not tokenize when line*4 / space *7
-                position += 1
-                self.column+=1
-            str = self.text[self.current:position]
-            str.replace(" ","")
-            # if it is a token then append otherwise an error
-            if str in textTokens:
-                token = Token(str.upper(), TokenType(str.upper()),lineno=self.line, column=self.column)
-                self.tokens.append(token)
-                if self.text[position]=="*":
-                    token = Token(self.text[position].upper(), TokenType(self.text[position]),lineno=self.line, column=self.column)
-                    self.tokens.append(token)
-                    position+=1
-                    self.column+=1
-                    if self.text[position].isdigit():
-                        self.current=position
-                        self.setDigitTokens()
-                        position=self.current
-            else:
-                token = Token(str,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
-                self.tokens.append(token)
-    
-            # set current to new position
-            self.current = position
+            token = Token(punctuation.upper(),  TokenType(punctuation.upper()),lineno=self.line, column=self.column+1)
+            
 
-            # loop until we find the other backslash or }
-            while self.text[position] in self.literals :
-                position += 1
-                self.column+=1
-                if position==self.length:
-                    break
-            # store the text in between the slashes
-            str = self.text[self.current:position]
-            token = Token(str, TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
-            self.tokens.append(token)
-
-            if  position!=self.length:
-                token = Token(self.text[position].upper(),  TokenType(self.text[position].upper()),lineno=self.line, column=self.column)
-                self.tokens.append(token)
-
-            # set current to the new position
-            self.current = position
-            self.increaseCurrent()
         
         else:
             # simple other tokens
@@ -351,13 +353,3 @@ class Lexer:
         self.tokens.append(Token("eof".upper(), TokenType("EOF")))
         return self.tokens
 
-# lex = Lexer("")
-
-# filename='./Lexer/test.txt'
-
-# with open(filename) as openfileobject:
-#     for line in openfileobject:
-#         lex.tokenizer(line)
-#         # print("linie "+line)
-# lex.get_tokens()
-# lex.print_tokens()

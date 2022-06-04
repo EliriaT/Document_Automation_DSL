@@ -29,10 +29,17 @@ class Num(AST):
         self.token = token
         self.value = token.value
 
+class Literal(AST):
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
+
+
 class Text_Literal(AST):
     def __init__(self, token):
         self.token = token
         self.value = token.value
+
 
 class UnaryOp(AST):
     def __init__(self, op, expr):
@@ -69,19 +76,23 @@ class Program(AST):
         self.templates = templates
         self.actions = actions
 
+
 class Actions(AST):
     def __init__(self, block_node):
         # self.formal_params = formal_params  # a list of Param nodes
         self.block_node = block_node   #simple block
+
 
 class Block(AST):
     def __init__(self, declarations, compound_statement):
         self.declarations = declarations                    #declaration inside actions:
         self.compound_statement = compound_statement        #statements inside actions:
 
+
 class Template_Block(AST):
     def __init__(self,  compound_statement):
         self.compound_statement = compound_statement        #statements inside template:
+
 
 class VarDecl(AST):         #Has a var node and a type node
     def __init__(self, var_node, type_node):
@@ -93,6 +104,7 @@ class Type(AST):        #Has the token and token value- num/date
     def __init__(self, token):
         self.token = token
         self.value = token.value
+
 
 class Type_text(AST):        #Has the token and token value- num/date
     def __init__(self, token, num,type):
@@ -116,7 +128,6 @@ class TemplateDecl(AST):
         self.template_block = block_node   #simple block
 
 
-
 class TemplateCall(AST):
     def __init__(self, templ_name, actual_params, token):
         self.templ_name = templ_name
@@ -125,10 +136,12 @@ class TemplateCall(AST):
         # a reference to template declaration symbol
         self.templ_symbol = None
 
+
 class IfNode(AST):
     def __init__(self, boolean_expression, statements):
         self.expression = boolean_expression
         self.statements = statements
+
 
 class IfElseNode(AST):
     def __init__(self, boolean_expression, statements, else_statements):
@@ -136,15 +149,18 @@ class IfElseNode(AST):
         self.statements = statements
         self.else_statements = else_statements
 
+
 class UntilNode(AST):
     def __init__(self, boolean_expression, statements):
         self.expression = boolean_expression
         self.statements = statements
 
+
 class DoUntilNode(AST):
     def __init__(self, statements, boolean_expression):
         self.statements = statements
         self.expression = boolean_expression
+
 
 class ExprNode(AST):
     def __init__(self, left, expression, right):
@@ -156,6 +172,7 @@ class FormattingTextLiteral(AST):
     def __init__(self, formatting, text):
         self.formatting = formatting
         self.text = text
+
 
 ################################################
 #########    Construct the AST     #############
@@ -211,7 +228,7 @@ class Parser:
     def actions_decl(self):
         self.eat(TokenType.ACTIONS)
         self.eat(TokenType.COLON)
-        block_node = self.block()
+        block_node = self.action_block()
         action_node=Actions(block_node)
         return action_node
 
@@ -220,7 +237,7 @@ class Parser:
         node = Template_Block( compound_statement_node)
         return node
 
-    def block(self):
+    def action_block(self):
         """block : declarations compound_statement"""
         declaration_nodes = self.declarations()
         compound_statement_node = self.compound_statement()
@@ -252,7 +269,7 @@ class Parser:
         while self.current_token.type == TokenType.COMMA:
             self.eat(TokenType.COMMA)
             var_nodes.append(Var(self.current_token))
-            self.eat(TokenType.ID)
+            self.eat(TokenType.IDENTIFIER)
 
         self.eat(TokenType.COLON)
 
@@ -332,12 +349,14 @@ class Parser:
 
     def statement(self):
         """
-        statement : compound_statement #We do not need this, it is for another block of code
-                  | template_call
+        statement :| template_call
                   | assignment_statement
                   |if else
                   |until
                   |do until
+                  | print();
+                  | pdf()
+                  | input()
                   | empty
         """
    
@@ -410,21 +429,22 @@ class Parser:
 
     def boolean_expressions(self):
         """
-        expression : boolean_expression ((AND|OR) boolean_expression)*
+        boolean_expressions : comp_expression ((AND|OR) comp_expression)*
         """
-        node = self.boolean_expression()
+        node = self.comp_expression()
         while (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR):
             sign = self.current_token
             self.eat(sign.type)
-            second_expr=self.boolean_expression()
+            second_expr=self.comp_expression()
             node = ExprNode(node, sign, second_expr)
 
         return node
         
-    def boolean_expression(self):
+    def comp_expression(self):
+        #comp_expression: NOT comp_expression
         if self.current_token.type == TokenType.NOT:
             self.eat(TokenType.NOT)
-            expression_one=self.boolean_expression()
+            expression_one=self.comp_expression()
             return ExprNode(TokenType.NOT, expression_one, None)
 
         expression_one=self.expr()
@@ -435,35 +455,8 @@ class Parser:
             expression_Two=self.expr()
             return ExprNode(expression_one, op, expression_Two)
 
-
-        # elif self.current_token.type == TokenType.LPAREN:
-        #     self.eat(TokenType.LPAREN)
-        #     add = self.boolean_expression()
-        #     if self.current_token.type == TokenType.RPAREN:
-        #         self.eat(TokenType.RPAREN)
-        #         return ExprNode(TokenType.LPAREN, add, TokenType.RPAREN)
-        #     else:
-        #         temp = ExprNode(add, self.boolean_expression(), None)
-        #         add = ExprNode(TokenType.LPAREN, temp, TokenType.RPAREN)
-        #         self.eat(TokenType.RPAREN)
-        #         return add
-            
-        # elif self.current_token.value in operationTokens or (self.current_token.type == TokenType.AND) or (self.current_token.type == TokenType.OR):
-        #     binOp = self.current_token.type
-        #     self.eat(binOp)
-        #     return ExprNode(binOp, self.boolean_expression(), None)
-        # else:
-        #     exprs = self.current_token.value
-        #     self.eat(self.current_token.type)
-
-        #     if self.current_token.value in operationTokens:
-        #         binOp = self.current_token.type
-        #         self.eat(binOp)
-        #         return ExprNode(exprs, binOp, self.boolean_expression())
-        #     else: 
-        #         return exprs
-
     def function_statements(self):
+        # function_statements: { statement_list } | statement
         if self.current_token.type == TokenType.LBRACE:
             self.eat(TokenType.LBRACE)
             statements = self.statement_list()
@@ -485,11 +478,11 @@ class Parser:
         token = self.current_token
         self.eat(TokenType.EQUAL)
         
-        if self.current_token.type == TokenType.TEXT_LITERALS:
-            right = []
-            right.append(FormattingTextLiteral(None, self.pop_text_literals()))
+        # if self.current_token.type == TokenType.TEXT_LITERALS:
+        #     right = []
+        #     right.append(FormattingTextLiteral(None, self.pop_text_literals()))
 
-        elif self.current_token.type == TokenType.LBRACE:
+        if self.current_token.type == TokenType.LBRACE:
             self.eat(TokenType.LBRACE)
             right = self.string_parsing()
             self.eat(TokenType.RBRACE)
@@ -503,28 +496,36 @@ class Parser:
     def string_parsing(self):
         textList = []
 
-        while self.current_token.type == TokenType.BACK_SLASH:
-            self.eat(TokenType.BACK_SLASH)
-
-            if self.current_token.type == TokenType.TEXT_LITERALS:
-                text = self.pop_text_literals()
-                right = FormattingTextLiteral(None, text)
-
-            elif self.current_token.value.lower() in textTokens:
-                formatting = self.current_token
-                self.current_token = self.get_next_token()
-
-                if formatting.type == TokenType.SPACE or formatting.type == TokenType.LINE or formatting.type == TokenType.TAB:
-                    self.eat(TokenType.BACK_SLASH)
-                
-                text = self.pop_text_literals()
-                right = FormattingTextLiteral(formatting, text)
-            else:
-                self.error( error_code=ErrorCode.UNEXPECTED_TOKEN,   token=self.current_token, expected_token="'textToken'")
+        while self.current_token.type == TokenType.BACK_SLASH or  self.current_token.type == TokenType.TEXT_LITERALS:
             
-            self.eat(TokenType.BACK_SLASH)
-            textList.append(right)
-        
+            if self.current_token.type == TokenType.TEXT_LITERALS:
+                    text = self.pop_text_literals()
+                    right = FormattingTextLiteral(None, text)
+                    textList.append(right)
+            
+            else :
+                self.eat(TokenType.BACK_SLASH)
+
+                if self.current_token.type == TokenType.TEXT_LITERALS:
+                    text = self.pop_text_literals()
+                    right = FormattingTextLiteral(None, text)
+
+                elif self.current_token.value.lower() in textTokens:  #trebuie eat italic underline? nu numaidecat
+                    formatting = self.current_token
+                    self.current_token = self.get_next_token()
+
+                    if formatting.type == TokenType.SPACE or formatting.type == TokenType.LINE or formatting.type == TokenType.TAB:
+                        right= FormattingTextLiteral(formatting,None)
+                        continue
+                    
+                    text = self.pop_text_literals()
+                    right = FormattingTextLiteral(formatting, text)
+                else:
+                    self.error( error_code=ErrorCode.UNEXPECTED_TOKEN,   token=self.current_token, expected_token="'textToken'")
+                
+                self.eat(TokenType.BACK_SLASH)
+                textList.append(right)   
+
         return textList
 
     def pop_text_literals(self):
@@ -596,10 +597,9 @@ class Parser:
     def factor(self):
         """factor : PLUS factor
                   | MINUS factor
-                  | INTEGER_CONST
-                  | REAL_CONST
                   | LPAREN boolean_expressions RPAREN
                   | variable
+                  |date literal | bool literal | string literal | num literal
         """
         token = self.current_token
         if token.type == TokenType.PLUS:
@@ -618,6 +618,12 @@ class Parser:
             node = self.boolean_expressions()
             self.eat(TokenType.RPAREN)
             return node
+        elif token.type == TokenType.DATE_LIT:
+            self.eat(TokenType.DATE_LIT)
+            return Literal(token)
+        elif token.type == TokenType.BOOL_LIT:
+            self.eat(TokenType.BOOL_LIT)
+            return Literal(token)
         elif token.type == TokenType.TEXT_LITERALS:
             self.eat(TokenType.TEXT_LITERALS)
             return Text_Literal(token)

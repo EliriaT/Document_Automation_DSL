@@ -1,6 +1,5 @@
 import sys
 from enum import Enum
-from turtle import right
 sys.path.append('../')
 
 from PBL.Interpreter.SemanticAnalyzer import NodeVisitor,SemanticAnalyzer
@@ -273,7 +272,7 @@ class Interpreter(NodeVisitor):
 
 lex = Lexer("")
 
-filename='./Parser/parsing_example.txt'
+filename='./Parser/version2.txt'
 
 with open(filename) as openfileobject:
     for line in openfileobject:
@@ -286,11 +285,11 @@ parser = Parser(tokens)
 AST=parser.parse()
 
 
-_SHOULD_LOG_STACK = True
+# _SHOULD_LOG_STACK = True
 
-semantic_analyzer = SemanticAnalyzer()
-semantic_analyzer.visit(AST)
-print("\n")
+# semantic_analyzer = SemanticAnalyzer()
+# semantic_analyzer.visit(AST)
+# print("\n")
 
-interpreter = Interpreter(AST)
-interpreter.interpret()
+# interpreter = Interpreter(AST)
+# interpreter.interpret()
