@@ -1,14 +1,16 @@
 create template ServiceAgreement:
 	params [
 		mon, rand: num
-		test : text
-		
+		test,hu: text
 
 ]
+
+	test = {\i textttt\};
+	hu="4ssss";
 	do {
-	mon=mon+1}
+	mon=mon ^ 2  }
 	until mon<10 ;
-	test = { \space \space textttt};
+	
 
 end template
 
@@ -19,7 +21,6 @@ actions:
 
 	a=5+7;
 	if a!=100 {
-		ServiceAgreement(1);
+		ServiceAgreement(2,3,"var1","var2");
 
 	}
-

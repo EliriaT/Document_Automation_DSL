@@ -85,7 +85,7 @@ class ScopedSymbolTable:
         self._symbols = {}
         self.scope_name = scope_name
         self.scope_level = scope_level
-        self.enclosing_scope = enclosing_scope
+        self.enclosing_scope = enclosing_scope  #The upper scope
 
     def _init_builtins(self):
         self.insert(Built_in_Type_Symbol('NUM'))
@@ -170,16 +170,19 @@ class SemanticAnalyzer(NodeVisitor):
         self.current_scope = global_scope
 
         # visit subtrees
-        self.visit(node.templates)
+        self.visit(node.templates)   #First  of all visiting templates creation because local variable there should be only local
 
         self.visit(node.actions)
 
-        self.log(global_scope)
+       
+        
+
+        self.log(global_scope)  #To print  the global scope after the execution of the entire program
 
         self.current_scope = self.current_scope.enclosing_scope
         self.log('LEAVE scope: global')
 
-    def visit_Block(self, node):
+    def visit_Block(self, node):  #action block
         for declaration in node.declarations:
             self.visit(declaration)
         self.visit(node.compound_statement)
@@ -212,7 +215,6 @@ class SemanticAnalyzer(NodeVisitor):
         # Insert parameters into the procedure scope
         for param in node.formal_params:
             param_type = self.current_scope.lookup(param.type_node.value)
-            # print("Este ",param_type)
             param_name = param.var_node.value
             var_symbol = Var_Symbol(param_name, param_type)
 
@@ -232,11 +234,12 @@ class SemanticAnalyzer(NodeVisitor):
         self.current_scope = self.current_scope.enclosing_scope
         self.log(f'LEAVE scope: {templ_name}\n')
 
-        # accessed by the interpreter when executing procedure call
+        # accessed by the interpreter when executing template call
         template_symbol.block_ast = node.template_block
 
     def visit_Template_Block(self,node):
         self.visit(node.compound_statement)
+        
 
     def visit_Actions(self,node):
         self.visit(node.block_node)
@@ -245,7 +248,6 @@ class SemanticAnalyzer(NodeVisitor):
     def visit_VarDecl(self, node):
         type_name = node.type_node.value
         type_symbol = self.current_scope.lookup(type_name)
-        # print("Este ",type_symbol)
 
         # Create the symbol and insert it into the symbol table.
         var_name = node.var_node.value
@@ -273,6 +275,12 @@ class SemanticAnalyzer(NodeVisitor):
             self.error(error_code=ErrorCode.ID_NOT_FOUND, token=node.token)
 
     def visit_Num(self, node):
+        pass
+
+    def visit_Literal(self, node):
+        pass
+
+    def visit_Text_Literal(self, node):
         pass
 
     def visit_UnaryOp(self, node):
@@ -313,5 +321,12 @@ class SemanticAnalyzer(NodeVisitor):
         else: self.visit(node.expression)
         if node.right.token.type!=None:
             self.visit(node.right)
+
+    def visit_list(self,node):  #A list when it is: text = { \ text\ text}
+        for i in node:
+            self.visit(i)
+
+    def visit_FormattingTextLiteral(self,node):
+        pass
     
 _SHOULD_LOG_SCOPE = True

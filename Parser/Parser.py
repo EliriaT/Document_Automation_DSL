@@ -169,9 +169,9 @@ class ExprNode(AST):
         self.right = right
 
 class FormattingTextLiteral(AST):
-    def __init__(self, formatting, text):
-        self.formatting = formatting
-        self.text = text
+    def __init__(self, formatting=None, text=None):
+        self.formatting = formatting  #Just a token 
+        self.text = text   #Text is a text literal token
 
 
 ################################################
@@ -316,7 +316,8 @@ class Parser:
             self.eat(TokenType.BOOLEAN_VAR)
         elif self.current_token.type == TokenType.PHONENUM:
             self.eat(TokenType.PHONENUM)
-        node = Type(token)
+        else: self.error( error_code=ErrorCode.UNEXPECTED_TOKEN,   token=self.current_token, expected_token="Type Token")
+        node = Type(token)  #can be a text type only without num and type
         return node
 
     def compound_statement(self):
@@ -478,9 +479,6 @@ class Parser:
         token = self.current_token
         self.eat(TokenType.EQUAL)
         
-        # if self.current_token.type == TokenType.TEXT_LITERALS:
-        #     right = []
-        #     right.append(FormattingTextLiteral(None, self.pop_text_literals()))
 
         if self.current_token.type == TokenType.LBRACE:
             self.eat(TokenType.LBRACE)
@@ -515,13 +513,14 @@ class Parser:
                     self.current_token = self.get_next_token()
 
                     if formatting.type == TokenType.SPACE or formatting.type == TokenType.LINE or formatting.type == TokenType.TAB:
-                        right= FormattingTextLiteral(formatting,None)
+                        right= FormattingTextLiteral(formatting, None)
+                        textList.append(right) 
                         continue
                     
                     text = self.pop_text_literals()
                     right = FormattingTextLiteral(formatting, text)
                 else:
-                    self.error( error_code=ErrorCode.UNEXPECTED_TOKEN,   token=self.current_token, expected_token="'textToken'")
+                    self.error( error_code=ErrorCode.UNEXPECTED_TOKEN,   token=self.current_token, expected_token="textToken")
                 
                 self.eat(TokenType.BACK_SLASH)
                 textList.append(right)   
@@ -561,21 +560,22 @@ class Parser:
             if token.type == TokenType.PLUS:
                 self.eat(TokenType.PLUS)
             elif token.type == TokenType.MINUS:
-                if node.type == TokenType.TEXT_LITERALS:
-                    self.eat(TokenType.PLUS)
-                else:
-                    self.eat(TokenType.MINUS)
+                self.eat(TokenType.MINUS)
+                # if node.type == TokenType.TEXT_LITERALS:
+                #     self.eat(TokenType.PLUS)
+                # else:
+                #     self.eat(TokenType.MINUS)
 
             node = BinOp(left=node, op=token, right=self.term())
 
         return node
 
     def term(self):
-        """term : factor ((MULT | INTEGER_DIV | FLOAT_DIV) factor)*"""
+        """term : factor ((MULT | DIV | INT_DIV) factor)*"""
         node = self.factor()
 
-        if node.token.type == TokenType.TEXT_LITERALS:
-            return node
+        # if node.token.type == TokenType.TEXT_LITERALS:
+        #     return node
 
         while self.current_token.type in (
                 TokenType.MULT,
@@ -597,9 +597,8 @@ class Parser:
     def factor(self):
         """factor : PLUS factor
                   | MINUS factor
-                  | LPAREN boolean_expressions RPAREN
-                  | variable
-                  |date literal | bool literal | string literal | num literal
+                  | power
+        
         """
         token = self.current_token
         if token.type == TokenType.PLUS:
@@ -610,7 +609,27 @@ class Parser:
             self.eat(TokenType.MINUS)
             node = UnaryOp(token, self.factor())
             return node
-        elif token.type == TokenType.NUM_LITERAL:
+        else:
+            node = self.power()
+            return node
+        
+
+    def power(self):
+        #Power : atom (POW factor)*
+        node = self.atom()
+        token = self.current_token
+        if token.type == TokenType.POWER:
+            self.eat(TokenType.POWER)
+            node = BinOp(left = node, op=token, right = self.factor())
+        return node
+
+
+    def atom(self):
+        #atom: | LPAREN boolean_expressions RPAREN
+        #      | variable
+        #      |date literal | bool literal | string literal | num literal
+        token = self.current_token
+        if token.type == TokenType.NUM_LITERAL:
             self.eat(TokenType.NUM_LITERAL)
             return Num(token)
         elif token.type == TokenType.LPAREN:

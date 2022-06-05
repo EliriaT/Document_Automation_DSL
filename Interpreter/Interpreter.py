@@ -1,5 +1,6 @@
 import sys
 from enum import Enum
+from TypeCheckersClasses import *
 sys.path.append('../')
 
 from PBL.Interpreter.SemanticAnalyzer import NodeVisitor,SemanticAnalyzer
@@ -99,8 +100,8 @@ class Interpreter(NodeVisitor):
 
         self.log(str(self.call_stack))
 
-        # visit subtrees
-        # self.visit(node.templates)
+        # visit subtrees                #In interpreter the templates in ast are not visited, only actions.
+        # self.visit(node.templates)    #The body of the template was already referenced in the Templ call node
 
         self.visit(node.actions)
 
@@ -128,27 +129,63 @@ class Interpreter(NodeVisitor):
         # Do nothing
         pass
 
+    def visit_Type_text(self, node):
+        # Do nothing
+        pass
+
     def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
         if node.op.type == TokenType.PLUS:
-            return self.visit(node.left) + self.visit(node.right)
+            return left.add(right) 
         elif node.op.type == TokenType.MINUS:
-            return self.visit(node.left) - self.visit(node.right)
+            return left.substract(right)
         elif node.op.type == TokenType.MULT:
-            return self.visit(node.left) * self.visit(node.right)
+            return left.multiply(right)
         elif node.op.type == TokenType.INTEGER_DIV:
-            return self.visit(node.left) // self.visit(node.right)
+            return left.int_divide(right)
         elif node.op.type == TokenType.FLOAT_DIV:
-            return float(self.visit(node.left)) / float(self.visit(node.right))
+            return left.divide(right)
+        elif node.op.type == TokenType.POWER:
+            return left.power(right)
+
 
     def visit_Num(self, node):
-        return node.value
+        return Numbers(node.value)
+
+    def visit_Literal(self,node):
+        if node.type == TokenType.BOOL_LIT:
+            return Bools(node.value)
+        elif node.type == TokenType.DATE_LIT:
+            return Dates(node.value)
+        elif node.type == TokenType.PHONENUM:
+            return Phonenums(node.value)
+
+    def visit_Text_Literal(self,node):
+        return Text_Literals(node.value)
+
+    def visit_FormattingTextLiteral(self,node):
+        if node.formatting == None :
+            return node.text.value
+        elif node.formatting != None  and node.text == None:
+            return node.formatting.value
+        elif node.formatting != None  and node.text != None:
+            return node.formatting.value + node.text.value
+
+    def visit_list(self,node):  #A list of formmatting text literals ... {}
+        text=''
+        for i in node:
+            text+=self.visit(i)
+
+        return text
 
     def visit_UnaryOp(self, node):
         op = node.op.type
+        number=self.visit(node.expr)
         if op == TokenType.PLUS:
-            return +self.visit(node.expr)
+            return number.multiply(Numbers(1))
         elif op == TokenType.MINUS:
-            return -self.visit(node.expr)
+            return number.multiply(Numbers(-1))
 
     def visit_Compound(self, node):
         for child in node.children:
@@ -187,32 +224,38 @@ class Interpreter(NodeVisitor):
 
         formal_params = templ_symbol.formal_params
         actual_params = node.actual_params
-
+        
         for param_symbol, argument_node in zip(formal_params, actual_params):
             ar[param_symbol.name] = self.visit(argument_node)
 
+        if len(formal_params) > len(actual_params):                 #If there are more actual params, the excess is just ignored
+            print("You introduced not enough parameters for template %s, please provide info for: \n" %templ_name)
+            for i in range(len(actual_params),len(formal_params)):
+                print(formal_params[i].name+":  ",end=" ")
+                ar[formal_params[i].name] = input()                  #Sa transform in data type necesar
+
         self.call_stack.push(ar)
 
-        self.log(f'ENTER: TEMPLATE {templ_name}')
+        self.log(f'\n\nENTER: TEMPLATE {templ_name}')
         self.log(str(self.call_stack))
 
         # evaluate procedure body
         self.visit(templ_symbol.block_ast)
 
-        self.log(f'LEAVE: TEMPLATE {templ_name}')
+        self.log(f'\n\nLEAVE: TEMPLATE {templ_name}')
         self.log(str(self.call_stack))
 
         self.call_stack.pop()
 
     def visit_IfNode(self,node):
         bool_result=self.visit(node.expression)
-        if(bool_result):
+        if(bool_result.value):
             for child in node.statements:
                 self.visit(child)
 
     def visit_IfElseNode(self,node):
         bool_result=self.visit(node.expression)
-        if(bool_result):
+        if(bool_result.value):
             for child in node.statements:
                 self.visit(child)
         else:
@@ -221,18 +264,17 @@ class Interpreter(NodeVisitor):
 
     def visit_UntilNode(self,node):
         bool_result=self.visit(node.expression)
-        while(bool_result):
+        while(bool_result.value):
             for child in node.statements:
                 self.visit(child)
             bool_result=self.visit(node.expression)
 
     def visit_DoUntilNode(self,node):
         while(True):
-
             for child in node.statements:
                 self.visit(child)
             bool_result=self.visit(node.expression)
-            if not(bool_result): break
+            if not(bool_result.value): break
 
     def visit_ExprNode(self,node):
         left_side=None
@@ -240,27 +282,30 @@ class Interpreter(NodeVisitor):
         if node.left.token.type!=TokenType.NOT:left_side= self.visit(node.left)
         else: 
             bool_result=self.visit(node.expression)
-            return not(bool_result)
+            return bool_result.not_with
 
         right_side=self.visit(node.right)
 
         operation_type=node.expression.type
 
         if operation_type == TokenType.SMALLER:
-            return left_side < right_side
+            return left_side.compare_lt(right_side)
         elif operation_type == TokenType.BIGGER:
-            return left_side > right_side
+            return left_side.compare_gt(right_side)
         elif operation_type == TokenType.NEGATION_EQUAL:
-            return left_side != right_side
+            return left_side.compare_neq(right_side)
         elif operation_type == TokenType.EQUAL_EQUAL:
-            return left_side == right_side
+            return left_side.compare_eq(right_side)
         elif operation_type == TokenType.BIGGER_EQUAL:
-            return left_side >= right_side
+            return left_side.compare_gte(right_side)
         elif operation_type == TokenType.SMALLER_EQUAL:
-            return left_side <= right_side
+            return left_side.compare_lte(right_side)
 
+        elif operation_type == TokenType.AND:
+            return left_side.and_with(right_side)
+        elif operation_type == TokenType.OR:
+            return left_side.or_with(right_side)
 
-        
 
     def interpret(self):
         tree = self.tree
@@ -273,11 +318,10 @@ class Interpreter(NodeVisitor):
 lex = Lexer("")
 
 filename='./Parser/version2.txt'
-
 with open(filename) as openfileobject:
     for line in openfileobject:
         lex.tokenizer(line)
-        # print("linie "+line)
+        # print("linie "+line)/
 tokens=lex.get_tokens()
 lex.print_tokens()
 print("\n\n")
@@ -285,11 +329,11 @@ parser = Parser(tokens)
 AST=parser.parse()
 
 
-# _SHOULD_LOG_STACK = True
+_SHOULD_LOG_STACK = True
 
-# semantic_analyzer = SemanticAnalyzer()
-# semantic_analyzer.visit(AST)
-# print("\n")
+semantic_analyzer = SemanticAnalyzer()
+semantic_analyzer.visit(AST)
+print("\n")
 
-# interpreter = Interpreter(AST)
-# interpreter.interpret()
+interpreter = Interpreter(AST)
+interpreter.interpret()

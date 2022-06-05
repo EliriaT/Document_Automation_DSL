@@ -32,27 +32,27 @@ class TokenType(Enum):
     MULT            =       "*"
     PLUS            =      "+"
     MINUS           =      "-"
+    POWER           =      "^"
 
     # block of reserved words
-    INT 	=	"INT"       # marks the beginning of the block
-    DOUBLE 	=	"DOUBLE"
+     # marks the beginning of the block
     NUM     =   "NUM"
     NUM_LITERAL = "NUM_LITERAL"
-    DATE_LIT = "DATE_LIT"
-    BOOL_LIT = "BOOL_LIT"
-    INTEGER_DIV   = 'DIV'
     BOOLEAN_VAR 	=	"BOOL"
+    BOOL_LIT = "BOOL_LIT"
     TEXT_VAR 	=	"TEXT"
     TEXT_LITERALS = "TEXT_LITERAL"
+    DATE 	=	"DATE"
+    DATE_LIT = "DATE_LIT"
+    MONEY 	=	"MONEY"
+    PHONENUM 	=	"PHONENUM"
     WORDS 	=	"WORDS"
     CHARS 	=	"CHARS"
     SENTENCES 	=	"SENTENCES"
-    DATE 	=	"DATE"
-    MONEY 	=	"MONEY"
-    PHONENUM 	=	"PHONENUM"
     TEMPLATE 	=	"TEMPLATE"
     ACTIONS 	=	"ACTIONS"
     OPEN 	=	"OPEN"
+    INTEGER_DIV   = 'DIV'
     PARAMS 	=	"PARAMS"
     ENUM 	=	"ENUM"
     PACK 	=	"PACK"
@@ -110,23 +110,3 @@ class TokenType(Enum):
     IDENTIFIER    = 'IDENTIFIER'
     EOF           = 'EOF'
 
-def _build_reserved_keywords():
-    """The function relies on the fact that in the TokenType
-    enumeration the beginning of the block of reserved keywords is
-    marked with INT and the end of the block is marked with
-    the CSV keyword.
-    Result Format:
-        {'INT': <TokenType.INT: 'INT'>}
-    """
-    # enumerations support iteration, in definition order
-    tt_list = list(TokenType)
-    start_index = tt_list.index(TokenType.INT)
-    end_index = tt_list.index(TokenType.CSV)
-    reserved_keywords = {
-        token_type.value: token_type
-        for token_type in tt_list[start_index:end_index + 1]
-    }
-    return reserved_keywords
-
-
-RESERVED_KEYWORDS = _build_reserved_keywords()

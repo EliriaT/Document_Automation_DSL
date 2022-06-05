@@ -18,7 +18,7 @@ singleTokens = {
 ###Operation tokens
 operationTokens = {
     "<": "SMALLER", ">": "BIGGER", "=": "EQUAL", "!": "NEGATION", "!=": "NEGATION_EQUAL", "/": "SLASH", "%": "MOD",
-    "==": 'EQUAL_EQUAL', ">=": "BIGGER_EQUAL", "<=": "SMALLER_EQUAL", "*": "MULT", "+": "PLUS", "-": "MINUS",
+    "==": 'EQUAL_EQUAL', ">=": "BIGGER_EQUAL", "<=": "SMALLER_EQUAL", "*": "MULT", "+": "PLUS", "-": "MINUS", "^": "POWER"
 }
 
 ###Keyword tokens
@@ -177,19 +177,24 @@ class Lexer:
                         text+=self.text[self.current]
                         self.increaseCurrent()
                     
-                    poz=0
-                    keyword=''
-                    while text[poz]!= ' ' and poz!=len(text):
-                        keyword+=text[poz]
-                        poz+=1
+                    if text!='':
+                        poz=0
+                        keyword=''
 
-                    if keyword.lower() in textTokens:          
-                        token = Token(keyword.upper(),  TokenType(keyword.upper()),lineno=self.line, column=self.column)
+                        print(text)
+                        print(len(text))
+                        while text[poz]!=' ' and poz<len(text):
+                            keyword+=text[poz]
+                            # print(keyword," ",poz)
+                            poz+=1
+
+                        if keyword.lower() in textTokens:          
+                            token = Token(keyword.upper(),  TokenType(keyword.upper()),lineno=self.line, column=self.column)
+                            self.tokens.append(token)
+                            text=text[poz:len(text)]
+
+                        token = Token(text,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
                         self.tokens.append(token)
-                        text=text[poz:len(text)]
-
-                    token = Token(text,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
-                    self.tokens.append(token)
 
                 else:
 
@@ -340,9 +345,6 @@ class Lexer:
             else:
                 return True
 
-    def is_date(self, number):
-        #check the date format
-        print("Date is checked here")
 
     # print tokens array
     def print_tokens(self):

@@ -4,6 +4,7 @@ class ErrorCode(Enum):
     UNEXPECTED_TOKEN = 'Unexpected token'
     ID_NOT_FOUND     = 'Identifier not found'
     DUPLICATE_ID     = 'Duplicate id found'
+    WRONG_TYPE       = 'Wrong operation types'
 
 
 class Error(Exception):
@@ -24,4 +25,7 @@ class ParserError(Error):
 
 
 class SemanticError(Error):
+    pass
+
+class OperationTypeError(Error):
     pass
