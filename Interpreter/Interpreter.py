@@ -162,15 +162,33 @@ class Interpreter(NodeVisitor):
             return Phonenums(node.value)
 
     def visit_Text_Literal(self,node):
-        return Text_Literals(node.value)
+        text=node.value
+        word_list=[ t for t in text.split() if t.startswith('#') ]
+        end='.,!?)(*@`></'
+        for word in word_list:              #Getting the list of params in the text
+            m=word_list.index(word)
+            if word[-1] in end:
+                word_list[m]=word[0:len(word)-1]
+            word_list[m]=word_list[m][1:len(word)]
+
+        ar = self.call_stack.peek()
+        
+
+        for word in word_list:
+            var_value = ar.get(word)
+            text=text.replace("#"+word,str(var_value.value))
+        node.value=text
+        return Text_Literals(text)
 
     def visit_FormattingTextLiteral(self,node):
         if node.formatting == None :
-            return node.text.value
+            text_literal=self.visit(node.text)
+            return text_literal.value
         elif node.formatting != None  and node.text == None:
             return node.formatting.value
         elif node.formatting != None  and node.text != None:
-            return node.formatting.value + node.text.value
+            text_literal=self.visit(node.text)
+            return node.formatting.value + text_literal.value #Visit
 
     def visit_list(self,node):  #A list of formmatting text literals ... {}
         text=''
@@ -336,7 +354,7 @@ parser = Parser(tokens)
 AST=parser.parse()
 
 
-_SHOULD_LOG_STACK = False
+_SHOULD_LOG_STACK = True
 
 semantic_analyzer = SemanticAnalyzer()
 semantic_analyzer.visit(AST)

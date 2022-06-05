@@ -1,18 +1,17 @@
 create template ServiceAgreement:
 	params [
-		mon, rand: num
-		test,hu: text
+		age, year,mon: num
+		test, name  :text 
 
 ]
-
-	test = {\i textttt\};
-	hu="Hi, print is working";
-
+	mon=3;
+	test = { \i Hello, my name is  #name. I am #age years old.\ I am born in #year.};
+	print(test);
 	do {
     print(mon);
 	mon=mon ^ 2; }
 	until mon<10 ;
-	print(hu,test,mon);
+	print(test)
 	
 
 end template
@@ -24,6 +23,6 @@ actions:
 
 	a=5+7;
 	if a!=100 {
-		ServiceAgreement(2,3,"var1","var2");
+		ServiceAgreement(20,2001,0,0,"Irina");
 
 	}
