@@ -27,11 +27,11 @@ class PDF(FPDF):
         return alignText
 
     def checkingStyle(self, textStyle):
-        if textStyle.lower() == "bold":
+        if textStyle.lower() == "b":
             styleTo = 'B'
-        elif textStyle.lower() == "underline":
+        elif textStyle.lower() == "u":
             styleTo = 'U'
-        elif textStyle.lower() == "italics":
+        elif textStyle.lower() == "i":
             styleTo = 'I'
         elif textStyle.lower() == '':
             styleTo = ''
@@ -107,10 +107,10 @@ class PDF(FPDF):
 
 pdf = PDF('P', 'mm', 'Letter')
 pdf.init()
-pdf.textAlign("bold", "Title", "center")
-pdf.text("italics", "italic check")
-pdf.text("bold", "bold check")
-pdf.text("underline", "underline check")
+pdf.textAlign("b", "Title", "center")
+pdf.text("I", "italic check")
+pdf.text("B", "bold check")
+pdf.text("U", "underline check")
 pdf.textColor("blue", "blue text check")
 pdf.fontSize('helvetica', 20)
 pdf.textColor("yellow", "yellow 20 text check")

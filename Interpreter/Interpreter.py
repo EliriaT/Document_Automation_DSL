@@ -1,6 +1,8 @@
 import sys
 from enum import Enum
 from TypeCheckersClasses import *
+from pdfcreator import PDF
+from fpdf import FPDF
 sys.path.append('../')
 
 from PBL.Interpreter.SemanticAnalyzer import NodeVisitor,SemanticAnalyzer
@@ -81,6 +83,8 @@ class Interpreter(NodeVisitor):
     def __init__(self, tree):
         self.tree = tree
         self.call_stack = CallStack()
+        self.pdf = PDF('P', 'mm', 'Letter')
+        self.pdf.add_page()
 
     def log(self, msg):
         if _SHOULD_LOG_STACK:
@@ -183,11 +187,13 @@ class Interpreter(NodeVisitor):
     def visit_FormattingTextLiteral(self,node):
         if node.formatting == None :
             text_literal=self.visit(node.text)
+            self.pdf.text("", text_literal.value)
             return text_literal.value
         elif node.formatting != None  and node.text == None:
             return node.formatting.value
         elif node.formatting != None  and node.text != None:
             text_literal=self.visit(node.text)
+            self.pdf.text(node.formatting.value, text_literal.value)
             return node.formatting.value + text_literal.value #Visit
 
     def visit_list(self,node):  #A list of formmatting text literals ... {}
@@ -338,6 +344,9 @@ class Interpreter(NodeVisitor):
             return ''
         return self.visit(tree)
 
+    def print_pdf(self):
+        self.pdf.print("test2")
+
 
 
 lex = Lexer("")
@@ -361,4 +370,6 @@ semantic_analyzer.visit(AST)
 print("\n")
 
 interpreter = Interpreter(AST)
+# interpreter.__init__(AST)
 interpreter.interpret()
+interpreter.print_pdf()
