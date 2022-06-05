@@ -247,6 +247,13 @@ class Interpreter(NodeVisitor):
 
         self.call_stack.pop()
 
+    def visit_FunctionCall(self,node):
+        if node.func_name==TokenType.PRINT.value:
+            for arg in node.actual_params:
+                elem=self.visit(arg)
+                print(elem,end=" ")
+            print()
+
     def visit_IfNode(self,node):
         bool_result=self.visit(node.expression)
         if(bool_result.value):
@@ -329,7 +336,7 @@ parser = Parser(tokens)
 AST=parser.parse()
 
 
-_SHOULD_LOG_STACK = True
+_SHOULD_LOG_STACK = False
 
 semantic_analyzer = SemanticAnalyzer()
 semantic_analyzer.visit(AST)

@@ -328,5 +328,9 @@ class SemanticAnalyzer(NodeVisitor):
 
     def visit_FormattingTextLiteral(self,node):
         pass
+
+    def visit_FunctionCall(self,node):
+        for arg in node.actual_params:
+            self.visit(arg)
     
 _SHOULD_LOG_SCOPE = True

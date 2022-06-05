@@ -6,10 +6,13 @@ create template ServiceAgreement:
 ]
 
 	test = {\i textttt\};
-	hu="4ssss";
+	hu="Hi, print is working";
+
 	do {
-	mon=mon ^ 2  }
+    print(mon);
+	mon=mon ^ 2; }
 	until mon<10 ;
+	print(hu,test,mon);
 	
 
 end template

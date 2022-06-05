@@ -1,3 +1,4 @@
+
 import sys
 
 sys.path.append('../')
@@ -172,6 +173,12 @@ class FormattingTextLiteral(AST):
     def __init__(self, formatting=None, text=None):
         self.formatting = formatting  #Just a token 
         self.text = text   #Text is a text literal token
+
+class FunctionCall(AST):  #For built in functions
+    def __init__(self, func_name, actual_params):
+        self.func_name = func_name
+        self.actual_params = actual_params  # a list of AST nodes, used by the interpreter
+
 
 
 ################################################
@@ -370,8 +377,32 @@ class Parser:
             node = self.if_statement()
         elif (self.current_token.type == TokenType.UNTIL) or (self.current_token.type == TokenType.DO):
             node = self.until_statement()
+        elif self.current_token.type == TokenType.PRINT:
+            node = self.print_statement()
         else:
             node = self.empty()
+        return node
+
+    def print_statement(self):
+        self.eat(TokenType.PRINT)
+        actual_params = []
+        self.eat(TokenType.LPAREN)
+
+        if self.current_token.type != TokenType.RPAREN:
+            node = self.boolean_expressions()
+            actual_params.append(node)
+
+        while self.current_token.type == TokenType.COMMA:
+            self.eat(TokenType.COMMA)
+            node = self.boolean_expressions()
+            actual_params.append(node)
+
+        self.eat(TokenType.RPAREN)
+
+        node = FunctionCall(
+            func_name=TokenType.PRINT.value,
+            actual_params=actual_params,
+        )
         return node
 
     def template_call_statement(self):
@@ -382,12 +413,12 @@ class Parser:
         self.eat(TokenType.LPAREN)
         actual_params = []
         if self.current_token.type != TokenType.RPAREN:
-            node = self.expr()
+            node = self.boolean_expressions()
             actual_params.append(node)
 
         while self.current_token.type == TokenType.COMMA:
             self.eat(TokenType.COMMA)
-            node = self.expr()
+            node = self.boolean_expressions()
             actual_params.append(node)
 
         self.eat(TokenType.RPAREN)
@@ -443,6 +474,7 @@ class Parser:
         
     def comp_expression(self):
         #comp_expression: NOT comp_expression
+        #                 expr com expr
         if self.current_token.type == TokenType.NOT:
             self.eat(TokenType.NOT)
             expression_one=self.comp_expression()
@@ -455,6 +487,7 @@ class Parser:
             self.eat(self.current_token.type)
             expression_Two=self.expr()
             return ExprNode(expression_one, op, expression_Two)
+        return expression_one
 
     def function_statements(self):
         # function_statements: { statement_list } | statement
@@ -486,7 +519,7 @@ class Parser:
             self.eat(TokenType.RBRACE)
 
         else: 
-            right = self.expr()
+            right = self.boolean_expressions()
 
         node = Assign(left, token, right)
         return node
