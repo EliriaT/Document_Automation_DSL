@@ -1,28 +1,28 @@
-create template ServiceAgreement:
-	params [
-		age, year,mon: num
-		test, name  :text 
+create template MotivateAbsence:
+    params [
+        mon: num
+        test, name,lessonName ,reason :text 
+        datev : date
 
 ]
-	mon=3;
-	test = { \b Hello, my name is  #name. I am #age years old.\ I am born in #year.};
-	print(test);
-	do {
+    mon=3;
+    test = { \b #name \, was absent from lesson \i #lessonName \, because \b #reason \ , on \u #datev \};
+
+    do {
     print(mon);
-	mon=mon ^ 2; }
-	until mon<10 ;
-	print(test)
-	
+    mon=mon ^ 2; }
+    until mon<10 ;
+
+    print(test)
 
 end template
 
 actions:
-	params[
-		a: num
-	]
+    params[
+        a: num
+    ]
 
-	a=5+7;
-	if a!=100 {
-		ServiceAgreement(20,2001,0,0,"Irina");
-
-	}
+    a=5+7;
+    if a!=100 {
+        MotivateAbsence(20,"test","Mocanu Liviu","ECD","i was ill", "2022.02.20");
+    }

@@ -176,7 +176,6 @@ class Interpreter(NodeVisitor):
             word_list[m]=word_list[m][1:len(word)]
 
         ar = self.call_stack.peek()
-        
 
         for word in word_list:
             var_value = ar.get(word)
@@ -351,7 +350,7 @@ class Interpreter(NodeVisitor):
 
 lex = Lexer("")
 
-filename='./Parser/version2.txt'
+filename='./Parser/version3.txt'
 with open(filename) as openfileobject:
     for line in openfileobject:
         lex.tokenizer(line)
