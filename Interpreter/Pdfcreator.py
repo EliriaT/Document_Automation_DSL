@@ -1,14 +1,12 @@
 from fpdf import FPDF
 
-size = 16
-font = "times"
 
 class PDF(FPDF):
     def init(self):
         self.set_auto_page_break(auto=True, margin=15)
         self.add_page()
         self.size=16
-        self.font="times"
+        self.font="arial"
         self.set_font(self.font, '', self.size)
 
 
@@ -54,22 +52,22 @@ class PDF(FPDF):
     def text(self, textStyle, text):
         styleTo = self.checkingStyle(textStyle)
         if styleTo != -1:
-            self.set_font(font, styleTo, size)
-            self.write(h=size-8,txt=text)
-        self.set_font(font, '', size)
+            self.set_font(self.font, styleTo, self.size)
+            self.write(h=self.size-8,txt=text)
+        self.set_font(self.font, '', self.size)
     
     def textAlign(self, textStyle, text, alignment):
         styleTo = self.checkingStyle(textStyle)
         alignTo = self.checkingAlignment(alignment)
         if styleTo != -1 and alignTo != -1:
-            self.set_font(font, styleTo, size)
-            self.multi_cell(0, h=size-8, txt=text, align=alignTo)
+            self.set_font(self.font, styleTo, self.size)
+            self.multi_cell(0, h=self.size-8, txt=text, align=alignTo)
 
     def textFontSize(self, textStyle, text, fontTo, sizeTo):
         styleTo = self.checkingStyle(textStyle)
         if styleTo != -1:
             self.set_font(fontTo, styleTo, sizeTo)
-            self.write(h=size-8,txt=text)
+            self.write(h=self.size-8,txt=text)
 
     def checkingColor(self, color):
         if color.lower() == "red":
@@ -95,7 +93,7 @@ class PDF(FPDF):
 
     def textColor(self, textColor, text):
         if self.checkingColor(textColor) == 1:
-            self.write(h=size-8,txt=text)
+            self.write(h=self.size-8,txt=text)
         self.color("black")
 
     def color(self, color):
@@ -104,14 +102,6 @@ class PDF(FPDF):
     def fontSize(self, fontTo, sizeTo):
         self.set_font(fontTo, '', sizeTo)
         self.font = fontTo
-        self.size = sizeTo
-
-    def font(self, fontTo):
-        self.set_font(fontTo, '', self.size)
-        self.font = fontTo
-
-    def size(self, sizeTo):
-        self.set_font(self.font, '', sizeTo)
         self.size = sizeTo
 
     def print(self, title):
@@ -128,7 +118,7 @@ pdf.text("IBU", "italic checkkkk   ")
 pdf.text("B", "bold check   ")
 pdf.text("U", "underline check   ")
 pdf.textColor("blue", "blue text check    ")
-pdf.fontSize('helvetica', 20)
+pdf.fontSize( "helvetica",20)
 
 pdf.textColor("magenta", "magenta 20 text check   ")
 pdf.color("black")

@@ -199,6 +199,14 @@ class Interpreter(NodeVisitor):
                 self.pdf.text("", "\t")
             elif node.formatting.type == TokenType.PAGE:
                 self.pdf.add_page()
+            elif node.formatting.type in [TokenType.COURIER,TokenType.ARIAL,TokenType.HELVETICA,TokenType.TIMES]:
+                self.pdf.fontSize(node.formatting.value,self.pdf.size)
+            elif node.formatting.type == TokenType.RESETFONT:
+                self.pdf.fontSize("times",self.pdf.size)
+            elif node.formatting.type == TokenType.RESETSIZE:
+                self.pdf.fontSize(self.pdf.font,12)
+            elif node.formatting.type == TokenType.NUM_LITERAL:
+                self.pdf.fontSize(self.pdf.font,node.formatting.value)
             return ' '
 
         elif node.formatting != None  and node.text != None:             #Center, colors left,right
@@ -210,6 +218,7 @@ class Interpreter(NodeVisitor):
                 self.pdf.textColor(node.formatting.value, text_literal.value  )
             elif node.formatting.type in [TokenType.UNDERLINE,TokenType.ITALIC,TokenType.BOLD,TokenType.IBU,TokenType.BU,TokenType.IB,TokenType.IU]:
                 self.pdf.text(node.formatting.value, text_literal.value)
+            
          
             return  text_literal.value      #Visited
 

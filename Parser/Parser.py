@@ -1,5 +1,6 @@
 
 import sys
+from tokenize import Token
 
 sys.path.append('../')
 
@@ -171,7 +172,7 @@ class ExprNode(AST):
 
 class FormattingTextLiteral(AST):
     def __init__(self, formatting=None, text=None):
-        self.formatting = formatting  #Just a token with its value
+        self.formatting = formatting  #Just a token with its value or it can be a number token
         self.text = text   #Text is a text literal token
 
 class FunctionCall(AST):  #For built in functions
@@ -541,11 +542,17 @@ class Parser:
                     text = self.pop_text_literals()
                     right = FormattingTextLiteral(None, text)
 
-                elif self.current_token.value.lower() in textTokens or self.current_token.value.lower() in colorTokens:  #trebuie eat italic underline? nu numaidecat
+          
+                elif self.current_token.type ==  TokenType.NUM_LITERAL or self.current_token.value.lower() in textTokens or self.current_token.value.lower() in colorTokens:  #trebuie eat italic underline? nu numaidecat
                     formatting = self.current_token
                     self.current_token = self.get_next_token()
 
-                    if formatting.type in [TokenType.SPACE , TokenType.LINE , TokenType.TAB, TokenType.PAGE]:
+                    if formatting.type in [TokenType.SPACE , TokenType.LINE , TokenType.TAB, TokenType.PAGE,TokenType.COURIER,TokenType.ARIAL,TokenType.HELVETICA,TokenType.TIMES,TokenType.RESETFONT,TokenType.RESETSIZE]:
+                        right= FormattingTextLiteral(formatting, None)
+                        textList.append(right) 
+                        continue
+
+                    if formatting.type == TokenType.NUM_LITERAL:
                         right= FormattingTextLiteral(formatting, None)
                         textList.append(right) 
                         continue

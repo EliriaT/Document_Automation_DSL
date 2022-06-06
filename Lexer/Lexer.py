@@ -44,7 +44,8 @@ dataType = {
 textTokens = {
     "u": "UNDERLINE", "i": "ITALIC", "center": "CENTER", "b": "BOLD", "color": "COLOR", "line": "LINE", "space": "SPACE",
     "t": "TAB" , "page" : "PAGE","right": "RIGHT", "left": "LEFT", "ibu":"IBU","biu":"IBU","iub":"IBU","bui":"IBU","uib":"IBU","ubi":"IBU","iu":"IU","ui":"IU",
-    "ib":"IB","bi":"IB","bu":"BU","ub":"BU"
+    "ib":"IB","bi":"IB","bu":"BU","ub":"BU", "courier" : "COURIER","arial" : "ARIAL","helvetica" : "HELVETICA","times" : "TIMES",
+    "resetfont":"RESENTFONT", "resetsize":"RESETSIZE"
 }
 
 ### tokens for colors
@@ -188,6 +189,11 @@ class Lexer:
 
                         if keyword.lower() in textTokens or keyword.lower() in colorTokens :          
                             token = Token(keyword.upper(),  TokenType(keyword.upper()),lineno=self.line, column=self.column)
+                            self.tokens.append(token)
+                            text=text[poz:len(text)]
+
+                        if self.is_number(keyword):
+                            token = Token(float(keyword),  TokenType("NUM_LITERAL"),lineno=self.line, column=self.column)
                             self.tokens.append(token)
                             text=text[poz:len(text)]
 
@@ -342,6 +348,18 @@ class Lexer:
                 return False
             else:
                 return True
+
+    def is_number(self,n):
+        is_number = True
+        try:
+            num = float(n)
+            # check for "nan" floats
+            is_number = num == num   #nan == nan is false
+            if num <=0: is_number= False        #Font size cant be negative
+        except ValueError:
+            is_number = False
+        
+        return is_number
 
 
     # print tokens array
