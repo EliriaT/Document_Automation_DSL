@@ -380,8 +380,9 @@ lex = Lexer("")
 filename='./Parser/version2.txt'
 with open(filename) as openfileobject:
     for line in openfileobject:
-        lex.tokenizer(line)
-
+        lex.gather_lines(line)
+        
+lex.tokenize_lines()
 tokens=lex.get_tokens()
 lex.print_tokens()
 print("\n\n")

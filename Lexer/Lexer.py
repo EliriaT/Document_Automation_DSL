@@ -92,6 +92,7 @@ class Lexer:
         self.column = 0
         self.error = False
         self.literals=string.printable.replace("\\","").replace("{","").replace("}","").replace("#","")
+        self.program_lines=list()
 
     # Reset values to initial values, will be called for each line
     def initializer(self, input_line):
@@ -101,11 +102,21 @@ class Lexer:
         self.column = 0
         self.length = len(input_line)
         self.error = False
+        
 
     # increases the current counter
     def increaseCurrent(self):
         self.current += 1
         self.column += 1
+
+    def gather_lines(self,input_line):
+        self.program_lines.append(input_line)
+
+    def tokenize_lines(self):           #Because at text styling when encountering \n, the line should be changed but the program flow must remain inside the while loop
+        while len(self.program_lines)>0:
+            self.tokenizer(self.program_lines[0])
+            self.program_lines.pop(0)
+        
 
     # Main function to tokenize a line input into tokens
     def tokenizer(self, input_line):
@@ -168,16 +179,24 @@ class Lexer:
             self.tokens.append(token)
             self.increaseCurrent()
 
-            while self.text[self.current] != "}" and self.length != self.current :
+            while self.current  < self.length and self.text[self.current] != "}"  :
+                    #if newline
                 text = ''
                 if self.text[self.current] == "\\":
                     token = Token(self.text[self.current],  TokenType(self.text[self.current]),lineno=self.line, column=self.column+1)
                     self.tokens.append(token)
                     self.increaseCurrent()
 
-                    while self.length != self.current  and self.text[self.current] != "}"  and self.text[self.current] != "\\":
+                    # print(self.current < self.length,self.text[self.current] != "}", self.text[self.current] != "\\")
+
+                    while self.current < self.length  and self.text[self.current] != "}"  and self.text[self.current] != "\\" :
+                        # print("why",text)
                         text+=self.text[self.current]
                         self.increaseCurrent()
+                        if(self.current < self.length and self.text[self.current] == "\n"):   #When between {} reaches a \n
+                            self.program_lines.pop(0)
+                            self.initializer(self.program_lines[0])
+                            
                     
                     if text!='':
                         poz=0
@@ -186,8 +205,9 @@ class Lexer:
                         while poz<len(text) and text[poz]!=' ':
                             keyword+=text[poz]
                             poz+=1
-
-                        if keyword.lower() in textTokens or keyword.lower() in colorTokens :          
+                        # print(keyword)
+                        if keyword.lower() in textTokens or keyword.lower() in colorTokens : 
+                
                             token = Token(keyword.upper(),  TokenType(keyword.upper()),lineno=self.line, column=self.column)
                             self.tokens.append(token)
                             text=text[poz:len(text)]
@@ -202,26 +222,26 @@ class Lexer:
 
                 else:
 
-                    while self.length != self.current  and self.text[self.current] != "}"  and self.text[self.current] != "\\":
+                    while self.current < self.length  and self.text[self.current] != "}"  and self.text[self.current] != "\\"  :
                         text+=self.text[self.current]
                         self.increaseCurrent()
+                        if(self.current < self.length and self.text[self.current] == "\n"):
+                            self.program_lines.pop(0)
+                            self.initializer(self.program_lines[0])
                     
                     token = Token(text,  TokenType("TEXT_LITERAL"),lineno=self.line, column=self.column)
                     self.tokens.append(token)
 
-            if self.text[self.current] == "}":
+            if self.current == self.length:
+                pass   #e o eroare, lipseste }, dar parserul o va detecta
+
+            elif self.text[self.current] == "}":
                 token = Token(self.text[self.current],  TokenType(self.text[self.current]),lineno=self.line, column=self.column+1)
                 self.tokens.append(token)
                 self.increaseCurrent()
+
             
 
-
-        # if we find a backslash we get the first word(textToken) after and until we find another backslash we store text in a text var
-        elif punctuation == "\\":
-            token = Token(punctuation.upper(),  TokenType(punctuation.upper()),lineno=self.line, column=self.column+1)
-            
-
-        
         else:
             # simple other tokens
             token = Token(punctuation.upper(),  TokenType(punctuation.upper()),lineno=self.line, column=self.column+1)

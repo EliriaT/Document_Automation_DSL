@@ -6,7 +6,7 @@ class PDF(FPDF):
         self.set_auto_page_break(auto=True, margin=15)
         self.add_page()
         self.size=16
-        self.font="arial"
+        self.font="times"
         self.set_font(self.font, '', self.size)
 
 
@@ -118,7 +118,7 @@ pdf.text("IBU", "italic checkkkk   ")
 pdf.text("B", "bold check   ")
 pdf.text("U", "underline check   ")
 pdf.textColor("blue", "blue text check    ")
-pdf.fontSize( "helvetica",20)
+pdf.fontSize( "times",20)
 
 pdf.textColor("magenta", "magenta 20 text check   ")
 pdf.color("black")
