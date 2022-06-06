@@ -36,6 +36,14 @@ class PDF(FPDF):
             styleTo = 'U'
         elif textStyle.lower() == "i":
             styleTo = 'I'
+        elif textStyle.lower() in ["ibu","biu","iub","bui","uib","ubi"]:
+            styleTo = 'IBU'
+        elif textStyle.lower() in ["iu","ui"]:
+            styleTo = 'IU'
+        elif textStyle.lower() in ["ib","bi"]:
+            styleTo = 'IB'
+        elif textStyle.lower() in ["bu","ub"]:
+            styleTo = 'BU'
         elif textStyle.lower() == '':
             styleTo = ''
         else:
@@ -116,7 +124,7 @@ class PDF(FPDF):
 pdf = PDF('P', 'mm', 'Letter')
 pdf.init()
 pdf.textAlign("b", "Title", "right")
-pdf.text("I", "italic checkkkk   ")
+pdf.text("IBU", "italic checkkkk   ")
 pdf.text("B", "bold check   ")
 pdf.text("U", "underline check   ")
 pdf.textColor("blue", "blue text check    ")

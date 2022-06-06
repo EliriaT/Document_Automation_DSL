@@ -92,8 +92,12 @@ class TokenType(Enum):
     #Text tokens
     UNDERLINE 	=	"U"
     ITALIC 	=	"I"
-    CENTER 	=	"CENTER"
     BOLD 	=	"B"
+    IBU   =   "IBU"
+    BU     =    "BU"
+    IU     =    "IU"
+    IB     =    "IB"
+    CENTER 	=	"CENTER"
     COLOR 	=	"COLOR"
     LINE 	=	"LINE"
     SPACE 	=	"SPACE"

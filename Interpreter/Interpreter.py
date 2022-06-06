@@ -208,7 +208,7 @@ class Interpreter(NodeVisitor):
                 self.pdf.textAlign("", text_literal.value  , node.formatting.value)
             elif node.formatting.type in [TokenType.RED ,TokenType.BLUE,TokenType.GREEN ,TokenType.MAGENTA, TokenType.YELLOW , TokenType.BROWN ,TokenType.GREY ,TokenType.BLACK]:
                 self.pdf.textColor(node.formatting.value, text_literal.value  )
-            elif node.formatting.type in [TokenType.UNDERLINE,TokenType.ITALIC,TokenType.BOLD]:
+            elif node.formatting.type in [TokenType.UNDERLINE,TokenType.ITALIC,TokenType.BOLD,TokenType.IBU,TokenType.BU,TokenType.IB,TokenType.IU]:
                 self.pdf.text(node.formatting.value, text_literal.value)
          
             return  text_literal.value      #Visited

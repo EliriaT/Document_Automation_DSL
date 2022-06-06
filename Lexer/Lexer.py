@@ -43,7 +43,8 @@ dataType = {
 ### tokens with slash \u , \i ,\center , \b , \color , \line , \space , \t
 textTokens = {
     "u": "UNDERLINE", "i": "ITALIC", "center": "CENTER", "b": "BOLD", "color": "COLOR", "line": "LINE", "space": "SPACE",
-    "t": "TAB" , "page" : "PAGE","right": "RIGHT", "left": "LEFT"
+    "t": "TAB" , "page" : "PAGE","right": "RIGHT", "left": "LEFT", "ibu":"IBU","biu":"IBU","iub":"IBU","bui":"IBU","uib":"IBU","ubi":"IBU","iu":"IU","ui":"IU",
+    "ib":"IB","bi":"IB","bu":"BU","ub":"BU"
 }
 
 ### tokens for colors
