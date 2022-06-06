@@ -1,0 +1,13 @@
+create template MotivateAbsence:
+    params [
+        test :text 
+]
+    
+    test = {\green  Hello \ };
+
+end template
+
+actions:
+    
+        MotivateAbsence("");
+    

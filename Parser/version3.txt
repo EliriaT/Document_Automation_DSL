@@ -5,7 +5,7 @@ create template ServiceAgreement:
 
 ]
 	mon=3;
-	test = { \b Hello, my name is  #name. I am #age years old.\ I am born in #year.};
+	test = { \red Hello, my  name is  #name. I am #age years old.\  \b I am born \in #year.};
 	print(test);
 	do {
     print(mon);

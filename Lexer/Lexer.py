@@ -28,7 +28,7 @@ keywordTokens = {
     "template": "TEMPLATE", "actions": "ACTIONS", "open": "OPEN", "params": "PARAMS", "enum": "ENUM",
     "pack": "PACK", "sentences": "SENTENCES", "global": "GLOBAL", "create": "CREATE", "make": "MAKE",
     "contains": "CONTAINS", "print": "PRINT", "error": "ERROR", "input": "INPUT", "return": "RETURN",
-    "right": "RIGHT", "left": "LEFT", "merge": "MERGE", "split": "SPLIT", "replace": "REPLACE",
+     "merge": "MERGE", "split": "SPLIT", "replace": "REPLACE",
     "for": "FOR", "until": "UNTIL", "do": "DO", "if": "IF", "else": "ELSE",
     "and": "AND", "or": "OR", "true": "TRUE", "false": "FALSE", "not": "NOT",
     "fontsize": "FONTSIZE", "font": "FONT", "length": "LENGTH", "begin": "BEGIN", "end": "END",
@@ -43,7 +43,7 @@ dataType = {
 ### tokens with slash \u , \i ,\center , \b , \color , \line , \space , \t
 textTokens = {
     "u": "UNDERLINE", "i": "ITALIC", "center": "CENTER", "b": "BOLD", "color": "COLOR", "line": "LINE", "space": "SPACE",
-    "t": "TAB"
+    "t": "TAB" , "page" : "PAGE","right": "RIGHT", "left": "LEFT"
 }
 
 ### tokens for colors
@@ -68,7 +68,7 @@ class Token:
         #     Token(TokenType.INTEGER, 7, position=5:10)
         
         return 'Token({type}, {value}, position={lineno}:{column})'.format(
-            type=self.type,
+            type=self.type.name,
             value=repr(self.value),
             lineno=self.lineno,
             column=self.column,
@@ -181,14 +181,11 @@ class Lexer:
                         poz=0
                         keyword=''
 
-                        print(text)
-                        print(len(text))
-                        while text[poz]!=' ' and poz<len(text):
+                        while poz<len(text) and text[poz]!=' ':
                             keyword+=text[poz]
-                            # print(keyword," ",poz)
                             poz+=1
 
-                        if keyword.lower() in textTokens:          
+                        if keyword.lower() in textTokens or keyword.lower() in colorTokens :          
                             token = Token(keyword.upper(),  TokenType(keyword.upper()),lineno=self.line, column=self.column)
                             self.tokens.append(token)
                             text=text[poz:len(text)]

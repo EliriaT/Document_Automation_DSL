@@ -1,7 +1,8 @@
+from pickle import FALSE
 import sys
 from enum import Enum
 from TypeCheckersClasses import *
-from pdfcreator import PDF
+from Pdfcreator import PDF
 from fpdf import FPDF
 sys.path.append('../')
 
@@ -84,7 +85,8 @@ class Interpreter(NodeVisitor):
         self.tree = tree
         self.call_stack = CallStack()
         self.pdf = PDF('P', 'mm', 'Letter')
-        self.pdf.add_page()
+        self.pdf.init()
+
 
     def log(self, msg):
         if _SHOULD_LOG_STACK:
@@ -153,7 +155,6 @@ class Interpreter(NodeVisitor):
         elif node.op.type == TokenType.POWER:
             return left.power(right)
 
-
     def visit_Num(self, node):
         return Numbers(node.value)
 
@@ -167,17 +168,17 @@ class Interpreter(NodeVisitor):
 
     def visit_Text_Literal(self,node):
         text=node.value
-        word_list=[ t for t in text.split() if t.startswith('#') ]
+        word_list=[ t for t in text.split() if t.startswith('#') ]          #Getting all words that start with #
         end='.,!?)(*@`></'
         for word in word_list:              #Getting the list of params in the text
             m=word_list.index(word)
-            if word[-1] in end:
+            if word[-1] in end:                     #If it ends with a punctuation
                 word_list[m]=word[0:len(word)-1]
             word_list[m]=word_list[m][1:len(word)]
 
         ar = self.call_stack.peek()
 
-        for word in word_list:
+        for word in word_list:               #Replacing each parameter with the its value from AR
             var_value = ar.get(word)
             text=text.replace("#"+word,str(var_value.value))
         node.value=text
@@ -188,12 +189,29 @@ class Interpreter(NodeVisitor):
             text_literal=self.visit(node.text)
             self.pdf.text("", text_literal.value)
             return text_literal.value
+
         elif node.formatting != None  and node.text == None:
-            return node.formatting.value
-        elif node.formatting != None  and node.text != None:
-            text_literal=self.visit(node.text)
-            self.pdf.text(node.formatting.value, text_literal.value)
-            return node.formatting.value + text_literal.value #Visit
+            if node.formatting.type == TokenType.SPACE:
+                self.pdf.text("", " ")
+            elif node.formatting.type == TokenType.LINE:
+                self.pdf.text("", "\n")
+            elif node.formatting.type == TokenType.TAB:
+                self.pdf.text("", "\t")
+            elif node.formatting.type == TokenType.PAGE:
+                self.pdf.add_page()
+            return ' '
+
+        elif node.formatting != None  and node.text != None:             #Center, colors left,right
+            text_literal=self.visit(node.text)                           #Each time the text literal should be visited becuase it may contain parameters
+
+            if node.formatting.type in [TokenType.CENTER,TokenType.LEFT,TokenType.RIGHT]:
+                self.pdf.textAlign("", text_literal.value  , node.formatting.value)
+            elif node.formatting.type in [TokenType.RED ,TokenType.BLUE,TokenType.GREEN ,TokenType.MAGENTA, TokenType.YELLOW , TokenType.BROWN ,TokenType.GREY ,TokenType.BLACK]:
+                self.pdf.textColor(node.formatting.value, text_literal.value  )
+            elif node.formatting.type in [TokenType.UNDERLINE,TokenType.ITALIC,TokenType.BOLD]:
+                self.pdf.text(node.formatting.value, text_literal.value)
+         
+            return  text_literal.value      #Visited
 
     def visit_list(self,node):  #A list of formmatting text literals ... {}
         text=''
@@ -350,11 +368,11 @@ class Interpreter(NodeVisitor):
 
 lex = Lexer("")
 
-filename='./Parser/version3.txt'
+filename='./Parser/version2.txt'
 with open(filename) as openfileobject:
     for line in openfileobject:
         lex.tokenizer(line)
-        # print("linie "+line)/
+
 tokens=lex.get_tokens()
 lex.print_tokens()
 print("\n\n")
@@ -362,7 +380,7 @@ parser = Parser(tokens)
 AST=parser.parse()
 
 
-_SHOULD_LOG_STACK = True
+_SHOULD_LOG_STACK = False
 
 semantic_analyzer = SemanticAnalyzer()
 semantic_analyzer.visit(AST)
@@ -370,5 +388,6 @@ print("\n")
 
 interpreter = Interpreter(AST)
 # interpreter.__init__(AST)
+print("#############---PROGRAM OUTPUT---#############")
 interpreter.interpret()
 interpreter.print_pdf()

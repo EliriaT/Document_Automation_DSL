@@ -333,4 +333,4 @@ class SemanticAnalyzer(NodeVisitor):
         for arg in node.actual_params:
             self.visit(arg)
     
-_SHOULD_LOG_SCOPE = True
+_SHOULD_LOG_SCOPE = False

@@ -171,7 +171,7 @@ class ExprNode(AST):
 
 class FormattingTextLiteral(AST):
     def __init__(self, formatting=None, text=None):
-        self.formatting = formatting  #Just a token 
+        self.formatting = formatting  #Just a token with its value
         self.text = text   #Text is a text literal token
 
 class FunctionCall(AST):  #For built in functions
@@ -541,11 +541,11 @@ class Parser:
                     text = self.pop_text_literals()
                     right = FormattingTextLiteral(None, text)
 
-                elif self.current_token.value.lower() in textTokens:  #trebuie eat italic underline? nu numaidecat
+                elif self.current_token.value.lower() in textTokens or self.current_token.value.lower() in colorTokens:  #trebuie eat italic underline? nu numaidecat
                     formatting = self.current_token
                     self.current_token = self.get_next_token()
 
-                    if formatting.type == TokenType.SPACE or formatting.type == TokenType.LINE or formatting.type == TokenType.TAB:
+                    if formatting.type in [TokenType.SPACE , TokenType.LINE , TokenType.TAB, TokenType.PAGE]:
                         right= FormattingTextLiteral(formatting, None)
                         textList.append(right) 
                         continue

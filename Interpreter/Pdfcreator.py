@@ -5,14 +5,17 @@ font = "times"
 
 class PDF(FPDF):
     def init(self):
-        pdf.set_auto_page_break(auto=True, margin=15)
-        pdf.add_page()
-        pdf.set_font(font, '', size)
+        self.set_auto_page_break(auto=True, margin=15)
+        self.add_page()
+        self.size=16
+        self.font="times"
+        self.set_font(self.font, '', self.size)
+
 
     def align(self, alignment, text):
         alignText = self.checkingAlignment(alignment)
         if alignText != -1:
-            self.cell(0, 10, text, align=alignText, ln=1)
+            self.multi_cell(0, 10, text, align=alignText)
 
     def checkingAlignment(self, alignment):
         if alignment.lower() == "center":
@@ -44,38 +47,39 @@ class PDF(FPDF):
         styleTo = self.checkingStyle(textStyle)
         if styleTo != -1:
             self.set_font(font, styleTo, size)
-            self.cell(0, 10, text, ln=1)
+            self.write(h=size-8,txt=text)
+        self.set_font(font, '', size)
     
     def textAlign(self, textStyle, text, alignment):
         styleTo = self.checkingStyle(textStyle)
         alignTo = self.checkingAlignment(alignment)
         if styleTo != -1 and alignTo != -1:
             self.set_font(font, styleTo, size)
-            self.cell(0, 10, text, align=alignTo, ln=1)
+            self.multi_cell(0, h=size-8, txt=text, align=alignTo)
 
     def textFontSize(self, textStyle, text, fontTo, sizeTo):
         styleTo = self.checkingStyle(textStyle)
         if styleTo != -1:
             self.set_font(fontTo, styleTo, sizeTo)
-            self.cell(0, 10, text, ln=1)
+            self.write(h=size-8,txt=text)
 
     def checkingColor(self, color):
         if color.lower() == "red":
-            pdf.set_text_color(255,0,0)
+            self.set_text_color(255,0,0)
         elif color.lower() == "green":
-            pdf.set_text_color(0,255,0)
+            self.set_text_color(0,255,0)
         elif color.lower() == "blue":
-            pdf.set_text_color(0,0,255)
+            self.set_text_color(0,0,255)
         elif color.lower() == "black":
-            pdf.set_text_color(0,0,0)
+            self.set_text_color(0,0,0)
         elif color.lower() == "magenta":
-            pdf.set_text_color(255,0,255)
+            self.set_text_color(255,0,255)
         elif color.lower() == "yellow":
-            pdf.set_text_color(255,255,0)
+            self.set_text_color(255,255,0)
         elif color.lower() == "brown":
-            pdf.set_text_color(150,75,0)
+            self.set_text_color(150,75,0)
         elif color.lower() == "gray":
-            pdf.set_text_color(128,128,128)
+            self.set_text_color(128,128,128)
         else: 
             print("NO SUCH COLOR AS", color.lower())
             return -1
@@ -83,38 +87,44 @@ class PDF(FPDF):
 
     def textColor(self, textColor, text):
         if self.checkingColor(textColor) == 1:
-            self.cell(0, 10, text, ln=1)
+            self.write(h=size-8,txt=text)
+        self.color("black")
 
     def color(self, color):
         self.checkingColor(color)
 
     def fontSize(self, fontTo, sizeTo):
         self.set_font(fontTo, '', sizeTo)
-        font = fontTo
-        size = sizeTo
+        self.font = fontTo
+        self.size = sizeTo
 
     def font(self, fontTo):
-        self.set_font(fontTo, '', size)
-        font = fontTo
+        self.set_font(fontTo, '', self.size)
+        self.font = fontTo
 
     def size(self, sizeTo):
-        self.set_font(font, '', sizeTo)
-        size = sizeTo
+        self.set_font(self.font, '', sizeTo)
+        self.size = sizeTo
 
     def print(self, title):
         title = title+".pdf"
         self.output(title)
 
+   
+
+
 pdf = PDF('P', 'mm', 'Letter')
 pdf.init()
-pdf.textAlign("b", "Title", "center")
-pdf.text("I", "italic check")
-pdf.text("B", "bold check")
-pdf.text("U", "underline check")
-pdf.textColor("blue", "blue text check")
+pdf.textAlign("b", "Title", "right")
+pdf.text("I", "italic checkkkk   ")
+pdf.text("B", "bold check   ")
+pdf.text("U", "underline check   ")
+pdf.textColor("blue", "blue text check    ")
 pdf.fontSize('helvetica', 20)
-pdf.textColor("yellow", "yellow 20 text check")
+
+pdf.textColor("magenta", "magenta 20 text check   ")
 pdf.color("black")
-pdf.textFontSize('', "times in 40", "times", 40)
-pdf.text("", "simple text")
+pdf.textFontSize('', "times in 40     ", "times", 40)
+pdf.text("", "simple text     ")
+
 pdf.print("Test")

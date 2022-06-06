@@ -6,7 +6,7 @@ create template MotivateAbsence:
 
 ]
     mon=3;
-    test = { \b #name \, was absent from lesson \i #lessonName \, because \b #reason \ , on \u #datev \};
+    test = { I am \b #name \, was absent from lesson \i #lessonName \,  because \b #reason \, on \u #datev \};
 
     do {
     print(mon);
