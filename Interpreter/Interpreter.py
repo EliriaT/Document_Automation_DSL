@@ -1,9 +1,9 @@
 from pickle import FALSE
 import sys
 from enum import Enum
-from TypeCheckersClasses import *
-from Pdfcreator import PDF
-from fpdf import FPDF
+from Interpreter.TypeCheckersClasses import *
+from Interpreter.Pdfcreator import PDF
+
 sys.path.append('../')
 
 from PBL.Interpreter.SemanticAnalyzer import NodeVisitor,SemanticAnalyzer
@@ -271,6 +271,7 @@ class Interpreter(NodeVisitor):
     def visit_TemplateCall(self, node):
         templ_name = node.templ_name
         templ_symbol = node.templ_symbol
+        self.pdf_name=templ_name
 
         ar = ActivationRecord(
             name=templ_name,
@@ -383,33 +384,6 @@ class Interpreter(NodeVisitor):
         return self.visit(tree)
 
     def print_pdf(self):
-        self.pdf.print("test2")
-
-
-
-lex = Lexer("")
-
-filename='./Parser/version2.txt'
-with open(filename) as openfileobject:
-    for line in openfileobject:
-        lex.gather_lines(line)
-        
-lex.tokenize_lines()
-tokens=lex.get_tokens()
-lex.print_tokens()
-print("\n\n")
-parser = Parser(tokens)
-AST=parser.parse()
-
+        self.pdf.print( self.pdf_name)
 
 _SHOULD_LOG_STACK = True
-
-semantic_analyzer = SemanticAnalyzer()
-semantic_analyzer.visit(AST)
-print("\n")
-
-interpreter = Interpreter(AST)
-# interpreter.__init__(AST)
-print("#############---PROGRAM OUTPUT---#############")
-interpreter.interpret()
-interpreter.print_pdf()
