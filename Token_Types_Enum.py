@@ -103,6 +103,7 @@ class TokenType(Enum):
     TIMES = "TIMES"
     RESETFONT = "RESETFONT"
     RESETSIZE = "RESETSIZE"
+    RESETCOLOR ="RESETCOLOR"
     CENTER 	=	"CENTER"
     LINE 	=	"LINE"
     SPACE 	=	"SPACE"
@@ -117,5 +118,14 @@ class TokenType(Enum):
     GREY 	=	"GREY"
     BLACK 	=	"BLACK"
     IDENTIFIER    = 'IDENTIFIER'
-    EOF           = 'EOF'
+    CRED    = "CRED"
+    CBLUE   = "CBLUE"
+    CGREEN  = "CGREEN"
+    CMAGENTA = "CMAGENTA"
+    CWHITE   = "CWHITE"
+    CYELLOW  ="CYELLOW"
+    CBROWN  = "CBROWN"
+    CGREY    =  "GREY"
+    CBLACK  ="CBLACK"
+    EOF     = 'EOF'
 

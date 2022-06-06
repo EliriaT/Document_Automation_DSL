@@ -45,14 +45,19 @@ textTokens = {
     "u": "UNDERLINE", "i": "ITALIC", "center": "CENTER", "b": "BOLD", "color": "COLOR", "line": "LINE", "space": "SPACE",
     "t": "TAB" , "page" : "PAGE","right": "RIGHT", "left": "LEFT", "ibu":"IBU","biu":"IBU","iub":"IBU","bui":"IBU","uib":"IBU","ubi":"IBU","iu":"IU","ui":"IU",
     "ib":"IB","bi":"IB","bu":"BU","ub":"BU", "courier" : "COURIER","arial" : "ARIAL","helvetica" : "HELVETICA","times" : "TIMES",
-    "resetfont":"RESENTFONT", "resetsize":"RESETSIZE"
+    "resetfont":"RESENTFONT", "resetsize":"RESETSIZE", "resetcolor":"RESETCOLOR",
 }
 
 ### tokens for colors
 colorTokens = {
+    #Used for local coloring of text
     "red": "RED", "blue": "BLUE", "green": "GREEN", "magenta": "MAGENTA", "white": "WHITE",
-    "yellow": "YELLOW", "brown": "BROWN", "grey": "GREY", "black": "BLACK"
+    "yellow": "YELLOW", "brown": "BROWN", "grey": "GREY", "black": "BLACK",
+    #Used for setting the general color of the pdf
+    "cred": "cRED", "cblue": "cBLUE", "cgreen": "cGREEN", "cmagenta": "cMAGENTA", "cwhite": "cWHITE",
+    "cyellow": "cYELLOW", "cbrown": "cBROWN", "cgrey": "GREY", "cblack": "cBLACK",
 }
+
 
 
 ######################
@@ -190,10 +195,13 @@ class Lexer:
                     # print(self.current < self.length,self.text[self.current] != "}", self.text[self.current] != "\\")
 
                     while self.current < self.length  and self.text[self.current] != "}"  and self.text[self.current] != "\\" :
-                        # print("why",text)
-                        text+=self.text[self.current]
-                        self.increaseCurrent()
-                        if(self.current < self.length and self.text[self.current] == "\n"):   #When between {} reaches a \n
+                        if(self.text[self.current]!="\n"):
+                            text+=self.text[self.current]
+                            self.increaseCurrent()
+                            if(self.current < self.length and self.text[self.current] == "\n"):   #When between {} reaches a \n
+                                self.program_lines.pop(0)
+                                self.initializer(self.program_lines[0])
+                        else:
                             self.program_lines.pop(0)
                             self.initializer(self.program_lines[0])
                             
@@ -223,9 +231,13 @@ class Lexer:
                 else:
 
                     while self.current < self.length  and self.text[self.current] != "}"  and self.text[self.current] != "\\"  :
-                        text+=self.text[self.current]
-                        self.increaseCurrent()
-                        if(self.current < self.length and self.text[self.current] == "\n"):
+                        if(self.text[self.current]!="\n"):
+                            text+=self.text[self.current]
+                            self.increaseCurrent()
+                            if(self.current < self.length and self.text[self.current] == "\n"):
+                                self.program_lines.pop(0)
+                                self.initializer(self.program_lines[0])
+                        else:
                             self.program_lines.pop(0)
                             self.initializer(self.program_lines[0])
                     

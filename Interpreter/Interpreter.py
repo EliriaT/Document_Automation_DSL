@@ -205,8 +205,14 @@ class Interpreter(NodeVisitor):
                 self.pdf.fontSize("times",self.pdf.size)
             elif node.formatting.type == TokenType.RESETSIZE:
                 self.pdf.fontSize(self.pdf.font,12)
+            elif node.formatting.type == TokenType.RESETCOLOR:
+                self.pdf.color("BLACK")
             elif node.formatting.type == TokenType.NUM_LITERAL:
                 self.pdf.fontSize(self.pdf.font,node.formatting.value)
+            elif node.formatting.type in self.get_single_back_slash_colors():
+                color_name = node.formatting.value
+                color_name=color_name[1:len(color_name)]
+                self.pdf.color(color_name)
             return ' '
 
         elif node.formatting != None  and node.text != None:             #Center, colors left,right
@@ -363,6 +369,12 @@ class Interpreter(NodeVisitor):
         elif operation_type == TokenType.OR:
             return left_side.or_with(right_side)
 
+    def get_single_back_slash_colors(self):
+        singles = [TokenType.CRED,TokenType.CBLUE,TokenType.CGREEN
+        ,TokenType.CMAGENTA,TokenType.CWHITE,TokenType.CYELLOW,TokenType.CBROWN ,TokenType.CGREY,
+        TokenType.CBLACK]
+        return singles
+
 
     def interpret(self):
         tree = self.tree
@@ -390,7 +402,7 @@ parser = Parser(tokens)
 AST=parser.parse()
 
 
-_SHOULD_LOG_STACK = False
+_SHOULD_LOG_STACK = True
 
 semantic_analyzer = SemanticAnalyzer()
 semantic_analyzer.visit(AST)

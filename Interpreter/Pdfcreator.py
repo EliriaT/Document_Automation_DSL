@@ -108,21 +108,3 @@ class PDF(FPDF):
         title = title+".pdf"
         self.output(title)
 
-   
-
-
-pdf = PDF('P', 'mm', 'Letter')
-pdf.init()
-pdf.textAlign("b", "Title", "right")
-pdf.text("IBU", "italic checkkkk   ")
-pdf.text("B", "bold check   ")
-pdf.text("U", "underline check   ")
-pdf.textColor("blue", "blue text check    ")
-pdf.fontSize( "times",20)
-
-pdf.textColor("magenta", "magenta 20 text check   ")
-pdf.color("black")
-pdf.textFontSize('', "times in 40     ", "times", 40)
-pdf.text("", "simple text     ")
-
-pdf.print("Test")

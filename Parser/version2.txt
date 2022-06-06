@@ -6,8 +6,11 @@ create template MotivateAbsence:
 
 ]
     mon=3;
-    test = { \20 \courier I am \b #name \, was absent from lesson \i #lessonName \, \resetfont because \Ib #reason \,  
-      on \u #datev \ };
+    test = {  \20 \courier I am \b #name \, \red was absent from lesson\ \i #lessonName \,\cgreen because \resetcolor because \Ib #reason \,  
+
+
+
+on \u #datev \ };
 
     do {
     print(mon);

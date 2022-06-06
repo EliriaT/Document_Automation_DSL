@@ -191,6 +191,7 @@ class Parser:
         self.tokens = tokens
         # set current token to the first token taken from the input
         self.current_token = self.get_next_token()
+       
 
     def get_next_token(self):
         return self.tokens.pop(0)
@@ -547,7 +548,7 @@ class Parser:
                     formatting = self.current_token
                     self.current_token = self.get_next_token()
 
-                    if formatting.type in [TokenType.SPACE , TokenType.LINE , TokenType.TAB, TokenType.PAGE,TokenType.COURIER,TokenType.ARIAL,TokenType.HELVETICA,TokenType.TIMES,TokenType.RESETFONT,TokenType.RESETSIZE]:
+                    if formatting.type in self.get_single_back_slash_elems():
                         right= FormattingTextLiteral(formatting, None)
                         textList.append(right) 
                         continue
@@ -689,6 +690,14 @@ class Parser:
         else:
             node = self.variable()
             return node
+
+    def get_single_back_slash_elems(self):
+        singles = [TokenType.SPACE , TokenType.LINE , TokenType.TAB, TokenType.PAGE,
+        TokenType.COURIER,TokenType.ARIAL,TokenType.HELVETICA,TokenType.TIMES,
+        TokenType.RESETFONT,TokenType.RESETSIZE,TokenType.RESETCOLOR,TokenType.CRED,TokenType.CBLUE,TokenType.CGREEN
+        ,TokenType.CMAGENTA,TokenType.CWHITE,TokenType.CYELLOW,TokenType.CBROWN ,TokenType.CGREY,
+        TokenType.CBLACK]
+        return singles
 
     def parse(self):
     
