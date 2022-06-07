@@ -6,7 +6,7 @@ create template LegalAgreement:
         dateWritten : date
 
 ]
-    //tax = 100*((tax/100)+(1/100));
+    tax = 100*((tax/100)+(1/100));
     finalMon = initialMon + initialMon*(tax/100);
 
     mainText = { \20 \times \center Auto Bill of Sale \ 
@@ -16,18 +16,18 @@ create template LegalAgreement:
 rights, title and interest in the following described vehicle to
 \bu #nameBuyer\ 
 for and in consideration of the total sum of 
-\iu #initialMon $\
+\IU #initialMon $\
 , inclusive of all sales tax \ibu ( #tax % ) \
 , paid in the form of
 \iu #finalMon $\, the receipt and sufficiency of which is hereby acknowledged.\line 
-This sum represents the
+\12 *This sum represents the
 \ib mutually\ agreed upon purchase price of the vehicle, between both
 \cblue\i Seller\\resetcolor and the
-\cgreen\ibu Purchaser\\resetcolor\.\\line
-\page
-\13 \arial \right Date of issue: #dateWritten\\line};
+\cgreen\ibu Purchaser\\resetcolor\.\\line \line \line
+\16 Signature: \iu insert signature\
+\13 \helvetica \right Date of issue: #dateWritten\\line};
 
-    test = {\25 \times \brown Question 1:\ \25 \courier \resetcolor Is the 7-th \resetfont fibonacci number\magenta #guess\?};
+    test = {\25 \times \brown Question 1:\\courier \resetcolor Is the 7-th\resetfont fibonacci number\magenta #guess\?};
     initialMon = 0;
     finalMon = 1;
     tax = 0;
@@ -47,7 +47,7 @@ This sum represents the
         answer = {\cred Answer: \u #ans\! It was #finalMon .\resetcolor};
     };
 
-    //print(mainText)
+    print(mainText)
 
 end template
 
@@ -58,5 +58,5 @@ actions:
 
     a=5+7;
     if a!=100 {
-        LegalAgreement(12500,15,0,9,"false","mainText", "test", "answer","Joe Goldberg","Ben Parkins", "2022.05.31");
+        LegalAgreement(12500,15,0,8,"false","mainText", "test", "answer","Joe","Ben Parkins", "2022.05.31");
     }

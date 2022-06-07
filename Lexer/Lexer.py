@@ -1,8 +1,9 @@
+
 import datetime
 import string
 import sys
 sys.path.append('../')
-from PBL.Token_Types_Enum import TokenType
+from Document_Automation_DSL.Token_Types_Enum import TokenType
 
 #Token value si type
 #Cu error
@@ -402,4 +403,3 @@ class Lexer:
     def get_tokens(self):
         self.tokens.append(Token("eof".upper(), TokenType("EOF")))
         return self.tokens
-

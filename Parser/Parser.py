@@ -3,9 +3,9 @@ from tokenize import Token
 
 sys.path.append('../')
 
-from PBL.Lexer.Lexer import *
-from PBL.Token_Types_Enum import TokenType
-from PBL.Errors import ParserError,ErrorCode
+from Document_Automation_DSL.Lexer.Lexer import *
+from Document_Automation_DSL.Token_Types_Enum import TokenType
+from Document_Automation_DSL.Errors import ParserError,ErrorCode
 
 
 #############-----PARSER-----###################

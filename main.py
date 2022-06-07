@@ -1,7 +1,7 @@
 from Interpreter.SemanticAnalyzer import SemanticAnalyzer
-from PBL.Lexer.Lexer import Lexer
-from PBL.Parser.Parser import Parser
-from PBL.Interpreter.Interpreter import Interpreter
+from Document_Automation_DSL.Lexer.Lexer import Lexer
+from Document_Automation_DSL.Parser.Parser import Parser
+from Document_Automation_DSL.Interpreter.Interpreter import Interpreter
 
 #Creating the lexer object
 lex = Lexer("")

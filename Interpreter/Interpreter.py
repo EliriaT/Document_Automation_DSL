@@ -5,9 +5,9 @@ from Interpreter.TypeCheckersClasses import *
 from Interpreter.Pdfcreator import PDF
 
 sys.path.append('../')
-from PBL.Interpreter.SemanticAnalyzer import NodeVisitor
-from PBL.Token_Types_Enum import TokenType
-from PBL.Lexer.Lexer import Token
+from Document_Automation_DSL.Interpreter.SemanticAnalyzer import NodeVisitor
+from Document_Automation_DSL.Token_Types_Enum import TokenType
+from Document_Automation_DSL.Lexer.Lexer import Token
 
 ###############################################################################
 #                                                                             #

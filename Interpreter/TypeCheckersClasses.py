@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from PBL.Errors import OperationTypeError,ErrorCode
+from Document_Automation_DSL.Errors import OperationTypeError,ErrorCode
 from datetime import timedelta
 
 class Literals:

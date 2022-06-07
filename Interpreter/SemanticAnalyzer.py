@@ -3,9 +3,9 @@ from tokenize import Token
 
 sys.path.append('../')
 
-from PBL.Errors import SemanticError,ErrorCode
-from PBL.Token_Types_Enum import TokenType
-from PBL.Lexer.Lexer import Token
+from Document_Automation_DSL.Errors import SemanticError,ErrorCode
+from Document_Automation_DSL.Token_Types_Enum import TokenType
+from Document_Automation_DSL.Lexer.Lexer import Token
 ###############################################################################
 #                                                                             #
 #                               AST visitors                                  #
