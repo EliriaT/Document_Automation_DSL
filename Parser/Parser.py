@@ -1,4 +1,3 @@
-
 import sys
 from tokenize import Token
 
@@ -478,9 +477,10 @@ class Parser:
         #comp_expression: NOT comp_expression
         #                 expr com expr
         if self.current_token.type == TokenType.NOT:
+            token=self.current_token
             self.eat(TokenType.NOT)
             expression_one=self.comp_expression()
-            return ExprNode(TokenType.NOT, expression_one, None)
+            return ExprNode(token, expression_one, None)
 
         expression_one=self.expr()
 
@@ -503,6 +503,7 @@ class Parser:
                 self.eat(TokenType.SEMICOLON)
             if self.peek().type == TokenType.ELSE or self.peek().type == TokenType.UNTIL:
                 self.eat(TokenType.SEMICOLON)
+            statements=[statements]
 
         return statements
 

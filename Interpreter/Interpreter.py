@@ -7,6 +7,7 @@ from Interpreter.Pdfcreator import PDF
 sys.path.append('../')
 from PBL.Interpreter.SemanticAnalyzer import NodeVisitor
 from PBL.Token_Types_Enum import TokenType
+from PBL.Lexer.Lexer import Token
 
 ###############################################################################
 #                                                                             #
@@ -191,9 +192,10 @@ class Interpreter(NodeVisitor):
             if node.formatting.type == TokenType.SPACE:
                 self.pdf.text("", " ")
             elif node.formatting.type == TokenType.LINE:
-                self.pdf.text("", "\n")
+                self.pdf.text("", "\n ")
+
             elif node.formatting.type == TokenType.TAB:
-                self.pdf.text("", "\t")
+                self.pdf.text("", "\t ")
             elif node.formatting.type == TokenType.PAGE:
                 self.pdf.add_page()
             elif node.formatting.type in [TokenType.COURIER,TokenType.ARIAL,TokenType.HELVETICA,TokenType.TIMES]:
@@ -340,12 +342,14 @@ class Interpreter(NodeVisitor):
     def visit_ExprNode(self,node):
         left_side=None
         right_side=None
-        if node.left.token.type!=TokenType.NOT:left_side= self.visit(node.left)
+        if not(isinstance(node.left,Token)): 
+            left_side= self.visit(node.left)
+            right_side=self.visit(node.right)
         else: 
             bool_result=self.visit(node.expression)
-            return bool_result.not_with
+            return bool_result.not_with()
 
-        right_side=self.visit(node.right)
+
 
         operation_type=node.expression.type
 

@@ -54,7 +54,7 @@ class PDF(FPDF):
         if styleTo != -1:
             self.set_font(self.font, styleTo, self.size)
             self.write(h=self.size-8,txt=text)
-        self.set_font(self.font, '', self.size)
+        # self.set_font(self.font, '', self.size)
     
     def textAlign(self, textStyle, text, alignment):
         styleTo = self.checkingStyle(textStyle)
@@ -108,3 +108,11 @@ class PDF(FPDF):
         title = title+".pdf"
         self.output(title)
 
+pdf = PDF('P', 'mm', 'Letter')
+pdf.init()
+pdf.textAlign("b", "Title", "right")
+pdf.text("I", "italic checkkkk   lalalalalala   ")
+pdf.text("I", "\n ")
+pdf.text("I", "\n ")
+pdf.text("I", "italic checkkkk   lalalalalala")
+pdf.print("Test")

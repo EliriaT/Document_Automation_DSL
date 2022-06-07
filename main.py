@@ -5,7 +5,7 @@ from PBL.Interpreter.Interpreter import Interpreter
 
 #Creating the lexer object
 lex = Lexer("")
-filename='./Parser/version2.txt'
+filename='./Parser/demo.txt'
 with open(filename) as openfileobject:
     for line in openfileobject:
         lex.gather_lines(line)

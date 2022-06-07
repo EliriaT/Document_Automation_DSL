@@ -26,7 +26,7 @@ class Literals:
     def compare_lt(self, literal):
         return self.illegal_operation(literal)
 
-    def compate_gt(self, literal):
+    def compare_gt(self, literal):
         return self.illegal_operation(literal)
 
     def compare_lte(self, literal):
@@ -99,7 +99,7 @@ class Numbers(Literals):
         else:
             return self.illegal_operation(literal)
 
-    def compate_gt(self, literal):
+    def compare_gt(self, literal):
         if isinstance(literal, Numbers):
             return Numbers(self.value > literal.value)
         else:
@@ -177,7 +177,7 @@ class Text_Literals(Literals):
         else:
             return self.illegal_operation(literal)
 
-    def compate_gt(self, literal):
+    def compare_gt(self, literal):
         if isinstance(literal, Text_Literals):
             return Numbers(len(self.value) > len(literal.value))
         else:

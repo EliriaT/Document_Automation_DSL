@@ -1,10 +1,11 @@
 import sys
+from tokenize import Token
 
 sys.path.append('../')
 
 from PBL.Errors import SemanticError,ErrorCode
 from PBL.Token_Types_Enum import TokenType
-
+from PBL.Lexer.Lexer import Token
 ###############################################################################
 #                                                                             #
 #                               AST visitors                                  #
@@ -317,10 +318,12 @@ class SemanticAnalyzer(NodeVisitor):
         self.visit(node.expression)
 
     def visit_ExprNode(self,node):
-        if node.left.token.type!=TokenType.NOT: self.visit(node.left)
-        else: self.visit(node.expression)
-        if node.right.token.type!=None:
+        if not(isinstance(node.left,Token)): 
+            self.visit(node.left)
             self.visit(node.right)
+        else: self.visit(node.expression)
+        
+            
 
     def visit_list(self,node):  #A list when it is: text = { \ text\ text}
         for i in node:
