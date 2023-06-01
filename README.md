@@ -160,7 +160,7 @@ This is allowed for now only in template definition
 ```print(expression);```
 
 ### Introducing placeholders
-The placeholder must be defined as a parameter variable in the begining of the template definition. It is further substitute with the template argument given on template function call.
+The placeholder must be defined as a parameter variable in the begining of the template definition. It is further substituted with the template argument given on the time template function is called.
 
 In this example, `#guess` is a variable placeholder and will be substituted on pdf generation.
 
