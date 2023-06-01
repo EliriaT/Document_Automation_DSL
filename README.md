@@ -1,6 +1,6 @@
 # Document-Automation-DSL
 
-This repository contains the Lexer, Parser and the Interpreter of a DSL for **template processing**. Using this designed language, a user can create very custom template functions. The input to the function is a set of num, boolean, date, or text literals. The output of the template function is a **pdf** **document**.
+This repository contains the **Lexer**, **Parser** and the **Interpreter** of a DSL for **template processing**. Using this designed language, a user can create very custom template functions. The input to the function is a set of num, boolean, date, or text literals. The output of the template function is a **pdf** **document**.
 
 ## Introduction
 
