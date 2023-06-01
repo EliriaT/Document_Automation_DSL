@@ -387,4 +387,4 @@ class Interpreter(NodeVisitor):
     def print_pdf(self):
         self.pdf.print( self.pdf_name)
 
-_SHOULD_LOG_STACK = True
+_SHOULD_LOG_STACK = False

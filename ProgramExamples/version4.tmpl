@@ -1,0 +1,24 @@
+create template MotivateAbsence:
+    params [
+        test: text
+        mon: num
+]
+    
+    test = {\50  Hello };
+
+  until (mon<20)
+    {
+        mon = mon+1;
+        print(mon);
+    };
+
+   if(mon>16) print(mon);
+   else  print ("Less than 16");
+
+  
+
+end template
+
+actions:
+    MotivateAbsence("",15);
+    

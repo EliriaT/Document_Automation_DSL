@@ -5,14 +5,14 @@ from Document_Automation_DSL.Interpreter.Interpreter import Interpreter
 
 #Creating the lexer object
 lex = Lexer("")
-filename='./Parser/demo.txt'
+filename='./ProgramExamples/demo.tmpl'
 with open(filename) as openfileobject:
     for line in openfileobject:
         lex.gather_lines(line)
 #Tokenizing each line
 lex.tokenize_lines()
 tokens=lex.get_tokens()
-lex.print_tokens()
+# lex.print_tokens()
 
 print("\n\n")
 #Creating the parser object and generating the AST
