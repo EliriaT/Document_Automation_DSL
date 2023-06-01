@@ -1,17 +1,204 @@
 # Document-Automation-DSL
 
+This repository contains the Lexer, Parser and the Interpreter of a DSL for **template processing**. Using this designed language, a user can create very custom template functions. The input to the function is a set of num, boolean, date, or text literals. The output of the template function is a pdf document.
+
 ## Introduction
 
-A domain-specific language (DSL) is a specific programming language that has higher abstraction level and is specifically optimisеd for a specific field of problems. Domain-specific languages support a narrow set of tasks in a chosen domain.  This DSL for Document Automation allows conditional text as well as vаriable text, and manipulation of data commonly contained within a map of documents. The user can create **template functions** which will represent the general draft of the document. Inside the template function, the user can set the parameters that must be submitted to the template. These submitted parameter will be replaced at the marked place in the provided text. Furthermore, it is possible to have conditional text, error messages, and loops. Another feature which was considered important for this DSL, is the ability of the language to position text, and to adjust text design.
+A domain-specific language (DSL) is a specific programming language that is optimisеd for a specific field of problems. Domain-specific languages support a narrow set of tasks in a chosen domain.  
 
-## Input
-This DSL has the following types of inputs: plain text files(.txt, .doc,.docx), PDF files and CSV files(or XLSX).
-**Plain text files(.txt, .doc,.docx, .pdf)** - will be used for creating a template from already an existing document. This is the case when the internal template parameters should be marked with the ‘#’ symbol in the readily made input document file. This is a fast method for creating templates and easier to understood by people who do not possess all the technical skills for understanding the DSL’s syntax.
-**CSV files (or XLSX)** - the spreadsheets can be used as input data for templates. For example a user has a spreadsheet full of data of ten people and he wants to create contracts for them. He can use this data as input to the template function. As a result ten contracts will be generated filled with the data from the spreadsheet.
-**Command line inputs** - command line inputs can be used to manually fill in data of a template. It can be used for testing purposes, to check input/output connection, to avoid exporting PDF for wrong input. It offers more of a command line application for users to submit data to the template functions.
+This DSL for **Document Automation** allows for:
+* defining variables
+* evaluating expresions
+* defining template functions
+* text replacement
+* loops -  while loop, do while loop.
+* conditional evaluation
+* flexible text styling:
+  1. Setting the color of a subtext
+  2. Setting the font of a subtext
+  3. Setting the font-size of subtext
+  4. Setting the text-decoration of a subtext
+  5. Aligning the text
 
-## Output
-The program can produce two types of outputs:
-**Command line output** - in command line output the error information is shown and it is loged the status of a running program in case it has errors.
-**PDF/Docs**  - the DSL’s main type of output is a PDF file or a Docs file. The user can create user-made templates to later use that template to produce a PDF file that is filled with data and is ready for export.
 
+The user can create **template functions** which will represent the general draft of the document. 
+
+Inside the template function, the user can set the parameters that must be submitted to the template. 
+
+These submitted parameters will be replaced at the marked place in the provided text.
+
+All the text defined inside `{ styled text with #parameters }` will be included in the final output pdf.
+
+## How to Use this DSL
+
+### The main entry point
+
+Each template function must have the following similar structure:
+```
+create template MotivateAbsence:
+    params [
+        test :text
+        mon : num
+]
+    
+    test = {\green  Hello\ \line  World! };
+    if(mon>16) print(mon);
+
+end template
+
+actions:
+    MotivateAbsence("",19);
+```
+
+Each program must have a template function definition and the main entry point of the program.
+
+The main entry point in the program is under the `actions:` block of code. 
+
+### The template function 
+ To define a template function
+
+```
+create template NameOfTemplate:
+// a list of params in the form of 
+// IDENTIFIER : TYPE
+
+    params [
+        test: text
+        mon: num
+    ]
+
+// template body
+
+end template
+```
+### To call the template function in the main entry point
+```
+actions:
+    MotivateAbsence("",19);
+```
+
+### Simple variables and expressions
+
+```
+create template NameOfTemplate:
+    params [
+        initialMon, finalMon:  num
+ 
+    ]
+
+// template body
+  tax = 100*((tax/100)+(1/100));
+  finalMon = initialMon + initialMon*(tax/100);
+end template
+
+actions:
+   NameOfTemplate(50,100);
+```
+
+### Until loop
+```
+  until (mon<20)
+    {
+        mon = mon+1;
+        print(mon);
+    };
+ ```
+ 
+ ### Do Until loop
+```
+   do {
+        tax = finalMon;
+        finalMon = initialMon + finalMon;
+        initialMon = tax;
+        tax = 0;
+    } until finalMon<8 ;
+ ```
+### If Else
+```
+if(mon>16) print(mon);
+   else  print ("Less than 16");
+```
+### Constructing the template pdf
+```
+test = {  Hello Word };
+```
+
+### Multiple definitions will be concatenated 
+```
+test = {  Hello Word };
+test = {  Wish you a sunny day };
+```
+
+### Adding color
+```
+   test = {\green Hello! };
+```
+
+### Setting the font globally
+```
+   test = {\courier Hello!  };
+```
+
+### Resetting the font 
+```
+   test = {\courier Hello! \resetfont world!  };
+```
+
+### Setting the font size
+```
+   test = {\50 Hello!  world!  };
+```
+
+### Text decoration 
+Bold and underline: 
+```
+   test = {\bu Hello!  world!  };
+```
+### Print in terminal something
+This is allowed for now only in template definition
+```print(expression);```
+
+### All the text decoration keywords:
+Some such tags do not require a closing `\`, some do.
+
+Text colors:
+
+* `\red  text \`
+* `\blue  text \`
+* `\green text \`
+* `\magenta text \`
+* `\white text \`
+* `\yellow text \`
+* `\brown text \`
+* `\grey text \`
+* `\black text \`
+
+Prefix the text color with `c`, to set the global text color. Example: `\cred`
+
+Text decorations:
+* `\u text \` - underline
+* `\i text \` - italic
+* `\b text \`  - bold
+* `\ibu text` \ or `(\bui  \uib \biu \iub \ubi)` - underline, italic, and bold
+* `\ui text \` or `\iu text \`  - underline and italic
+* `\bi text \` or  `\ib text \` -  italic and bold
+* `\bu text \` or `\ub text\ ` - underline and bold
+
+Font:
+* \courier
+* \arial
+* \helvetica
+* \times
+
+Font size:
+* \1-100 - a valid uint
+
+Special keywords:
+* \resetsize - reset font size of text
+* \resetcolor - reset color of text to black
+* \resetfont - reset font
+* \line - add an empty page line in template
+* \t - a tab
+* \center text \ - align center a text
+* \left text \ - align to left of the page
+* \right text \ - align to right of the page
